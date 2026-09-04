@@ -1,0 +1,28 @@
+# Upstream source clone workspace
+NuvioDesktop/
+nuvio_workspace/
+
+# Build and Gradle
+.gradle/
+build/
+**/build/
+*.apk
+*.aab
+*.msi
+*.exe
+*.dmg
+*.deb
+*.rpm
+
+# Local configuration
+local.properties
+
+# IDE and OS
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Scratch and temp build files
+scratch/
+temp/

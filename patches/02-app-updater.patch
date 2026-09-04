@@ -1,0 +1,10 @@
+diff --git a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/updater/AppUpdaterPlatform.desktop.kt b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/updater/AppUpdaterPlatform.desktop.kt
+index 7a1fde6..bda47b1 100644
+--- a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/updater/AppUpdaterPlatform.desktop.kt
++++ b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/updater/AppUpdaterPlatform.desktop.kt
+@@ -1,4 +1,4 @@
+-package com.nuvio.app.features.updater
++﻿package com.nuvio.app.features.updater
+ 
+ import com.nuvio.app.core.build.AppVersionConfig
+ import com.nuvio.app.core.storage.DesktopStorage
