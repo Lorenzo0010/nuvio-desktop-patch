@@ -19,7 +19,7 @@ foreach ($patch in $patches) {
         Write-Error "Patch file not found: $patch"
     }
     Write-Host "==> Applying $patch..." -ForegroundColor Cyan
-    git -C $TargetDir apply --3way (Resolve-Path $patch).Path
+    git -C $TargetDir apply --ignore-space-change --3way (Resolve-Path $patch).Path
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Failed to apply $patch"
     }

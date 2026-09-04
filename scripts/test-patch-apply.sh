@@ -19,7 +19,7 @@ for patch in "${PATCHES[@]}"; do
         exit 1
     fi
     echo "==> Applying $patch..."
-    git -C "$TARGET_DIR" apply --3way "$patch"
+    git -C "$TARGET_DIR" apply --ignore-space-change --3way "$patch"
 done
 
 echo "==> [4/4] All patches applied successfully!"

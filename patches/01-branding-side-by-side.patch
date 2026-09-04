@@ -1,5 +1,5 @@
 diff --git a/composeApp/build.gradle.kts b/composeApp/build.gradle.kts
-index cab524a..1f77193 100644
+index cab524a..27176ac 100644
 --- a/composeApp/build.gradle.kts
 +++ b/composeApp/build.gradle.kts
 @@ -1,4 +1,4 @@
@@ -17,6 +17,19 @@ index cab524a..1f77193 100644
  val iosDistribution = (
      providers.gradleProperty("nuvio.ios.distribution").orNull
          ?: System.getenv("NUVIO_IOS_DISTRIBUTION")
+@@ -584,9 +584,9 @@ val generateRuntimeConfigs = tasks.register<GenerateRuntimeConfigsTask>("generat
+     appVersionCode.set(releaseAppVersionCode)
+     desktopAppVersionName.set(desktopReleaseVersionName)
+     desktopAppVersionCode.set(desktopReleaseVersionCode)
+-    supabaseUrl.set(runtimeConfigValue("NUVIO_SUPABASE_URL"))
+-    supabaseAnonKey.set(runtimeConfigValue("NUVIO_SUPABASE_ANON_KEY"))
+-    supabaseFallbackUrl.set(runtimeConfigValue("NUVIO_SUPABASE_FALLBACK_URL"))
++    supabaseUrl.set(runtimeConfigValue("NUVIO_SUPABASE_URL", "https://api.nuvio.tv"))
++    supabaseAnonKey.set(runtimeConfigValue("NUVIO_SUPABASE_ANON_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzgxNTIxMzQ2LCJleHAiOjE5MzkyMDEzNDZ9.tmQaj682pwzehpqlgCDMnySOqiUvpgRbrE43T4VJpDI"))
++    supabaseFallbackUrl.set(runtimeConfigValue("NUVIO_SUPABASE_FALLBACK_URL", "https://api-two.nuvioapp.space"))
+     sentryDsn.set(runtimeConfigValue("SENTRY_DSN"))
+     sentryDesktopDsn.set(runtimeConfigValue("SENTRY_DESKTOP_DSN"))
+     sentryEnvironment.set(
 @@ -920,6 +920,7 @@ val buildWindowsPlayerBridge = tasks.register<Exec>("buildWindowsPlayerBridge")
  
  val prepareWindowsPlayerRuntime = tasks.register<Sync>("prepareWindowsPlayerRuntime") {
