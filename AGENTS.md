@@ -57,6 +57,7 @@ Le patch si trovano in `patches/` e vanno applicate in ordine numerico:
 1. `patches/01-branding-side-by-side.patch` (Branding Nuvio Plus, isolamento AppData/Cache, configurazione Gradle)
 2. `patches/02-app-updater.patch` (Reindirizzamento updater su `Lorenzo0010/nuvio-desktop-patch`)
 3. `patches/03-live-tv.patch` (Funzionalità Live TV, storage canali M3U, drawer in-player, sidebar e navigation bar desktop)
+4. `patches/04-hls-downloads.patch` (Download offline e streaming HLS multitraccia, decrittazione hardware AES-128, picker cartella e gestione download)
 
 Esegui lo script di test:
 - PowerShell: `powershell -ExecutionPolicy Bypass -File .\scripts\test-patch-apply.ps1`

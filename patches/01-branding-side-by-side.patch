@@ -1,13 +1,7 @@
 diff --git a/composeApp/build.gradle.kts b/composeApp/build.gradle.kts
-index cab524a..27176ac 100644
+index cab524a..803128c 100644
 --- a/composeApp/build.gradle.kts
 +++ b/composeApp/build.gradle.kts
-@@ -1,4 +1,4 @@
--import org.gradle.api.DefaultTask
-+﻿import org.gradle.api.DefaultTask
- import org.gradle.api.file.DirectoryProperty
- import org.gradle.api.file.RegularFileProperty
- import org.gradle.api.provider.Property
 @@ -500,7 +500,7 @@ val desktopReleaseVersionCode = (
      ?.toIntOrNull()
      ?: 1
@@ -30,7 +24,7 @@ index cab524a..27176ac 100644
      sentryDsn.set(runtimeConfigValue("SENTRY_DSN"))
      sentryDesktopDsn.set(runtimeConfigValue("SENTRY_DESKTOP_DSN"))
      sentryEnvironment.set(
-@@ -920,6 +920,7 @@ val buildWindowsPlayerBridge = tasks.register<Exec>("buildWindowsPlayerBridge")
+@@ -920,9 +920,18 @@ val buildWindowsPlayerBridge = tasks.register<Exec>("buildWindowsPlayerBridge")
  
  val prepareWindowsPlayerRuntime = tasks.register<Sync>("prepareWindowsPlayerRuntime") {
      enabled = isWindowsHost
@@ -38,7 +32,18 @@ index cab524a..27176ac 100644
      into(windowsPlayerRuntimeOutput)
      if (windowsWebView2LoaderDll.exists()) {
          from(windowsWebView2LoaderDll)
-@@ -984,6 +985,7 @@ val prepareMacosPlayerAppResources = tasks.register<Sync>("prepareMacosPlayerApp
++    } else {
++        val fallbackWebView2 = listOf(
++            File(bundledWindowsLibmpvRuntimeDir, "WebView2Loader.dll"),
++            rootProject.file("assets/native/windows/WebView2Loader.dll"),
++        ).firstOrNull(File::exists)
++        if (fallbackWebView2 != null) {
++            from(fallbackWebView2)
++        }
+     }
+     windowsCppRuntimeDlls.forEach { dllFile ->
+         from(dllFile)
+@@ -984,6 +993,7 @@ val prepareMacosPlayerAppResources = tasks.register<Sync>("prepareMacosPlayerApp
  }
  
  tasks.withType<Jar>().configureEach {
@@ -46,7 +51,15 @@ index cab524a..27176ac 100644
      if (isWindowsHost && name == "desktopJar") {
          dependsOn(buildWindowsPlayerBridge, prepareWindowsPlayerRuntime, generateWindowsPlayerRuntimeIndex)
          from(windowsPlayerBridgeOutput) {
-@@ -1282,7 +1284,7 @@ compose.desktop {
+@@ -1206,6 +1216,7 @@ kotlin {
+                 implementation(libs.kotlinx.coroutines.swing)
+                 implementation(libs.ktor.client.cio)
+                 implementation("com.squareup.okhttp3:okhttp:4.12.0")
++                implementation("com.squareup.okhttp3:okhttp-dnsoverhttps:4.12.0")
+                 implementation(libs.quickjs.kt)
+                 implementation(libs.ksoup)
+                 implementation(libs.sentry.jvm)
+@@ -1282,7 +1293,7 @@ compose.desktop {
  
          nativeDistributions {
              targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm, TargetFormat.AppImage)
@@ -55,7 +68,7 @@ index cab524a..27176ac 100644
              packageVersion = desktopReleasePackageVersion
              vendor = "Nuvio Media"
              if (isMacHost) {
-@@ -1337,13 +1339,13 @@ compose.desktop {
+@@ -1337,13 +1348,13 @@ compose.desktop {
                  upgradeUuid = windowsMsiUpgradeUuid
                  shortcut = true
                  menu = true
@@ -71,6 +84,27 @@ index cab524a..27176ac 100644
                  appCategory = "AudioVideo"
              }
          }
+@@ -1396,10 +1407,13 @@ fun publishWindowsMsiOutput(release: Boolean) {
+ 
+     val distributionName = if (release) "main-release" else "main"
+     val outputDir = layout.buildDirectory.dir("compose/binaries/$distributionName/msi").get().asFile
+-    val finalMsi = outputDir.resolve("Nuvio-Windows-$windowsPlayerBridgeArch-$desktopReleaseVersionName.msi")
+-    val defaultMsi = outputDir.resolve("Nuvio-$desktopReleasePackageVersion.msi")
++    val finalMsi = outputDir.resolve("NuvioPlus-Windows-$windowsPlayerBridgeArch-$desktopReleaseVersionName.msi")
++    val defaultMsi = outputDir.resolve("NuvioPlus-$desktopReleasePackageVersion.msi")
++    val defaultMsiOld = outputDir.resolve("Nuvio-$desktopReleasePackageVersion.msi")
+     val sourceMsi = defaultMsi.takeIf { it.exists() }
++        ?: defaultMsiOld.takeIf { it.exists() }
+         ?: finalMsi.takeIf { it.exists() }
++        ?: outputDir.listFiles()?.firstOrNull { it.extension == "msi" }
+         ?: error("Expected Windows MSI output in ${outputDir.absolutePath}")
+ 
+     if (sourceMsi.canonicalFile != finalMsi.canonicalFile) {
+@@ -1679,3 +1693,4 @@ configurations.all {
+     exclude(group = "androidx.media3", module = "media3-exoplayer")
+     exclude(group = "androidx.media3", module = "media3-ui")
+ }
++
 diff --git a/composeApp/src/desktopMain/kotlin/com/nuvio/app/Main.kt b/composeApp/src/desktopMain/kotlin/com/nuvio/app/Main.kt
 index 9b34f40..5989755 100644
 --- a/composeApp/src/desktopMain/kotlin/com/nuvio/app/Main.kt
@@ -146,5 +180,26 @@ index 3bf9ebf..1168370 100644
 -                properties.store(output, "Nuvio desktop preferences")
 +                properties.store(output, "Nuvio Plus desktop preferences")
              }
+         }
+     }
+diff --git a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/player/desktop/NativePlayerBridge.kt b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/player/desktop/NativePlayerBridge.kt
+index 9d78dea..5493852 100644
+--- a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/player/desktop/NativePlayerBridge.kt
++++ b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/player/desktop/NativePlayerBridge.kt
+@@ -19,6 +19,7 @@ internal object NativePlayerBridge {
+         "msvcp140_codecvt_ids.dll",
+         "concrt140.dll",
+         "WebView2Loader.dll",
++        "libmpv-2.dll",
+     )
+     private val preloadStarted = AtomicBoolean(false)
+ 
+@@ -207,7 +208,7 @@ internal object NativePlayerBridge {
+         if (indexed.isNotEmpty()) return indexed
+ 
+         return when (platformDir) {
+-            "windows" -> listOf("libmpv-2.dll")
++            "windows" -> listOf("libmpv-2.dll", "WebView2Loader.dll")
+             else -> emptyList()
          }
      }
