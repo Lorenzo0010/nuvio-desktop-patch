@@ -3,9 +3,17 @@ set -euo pipefail
 
 TARGET_DIR="${1:-NuvioDesktop}"
 
-echo "==> [1/4] Resetting $TARGET_DIR to clean upstream Dev..."
+BASE_COMMIT="origin/Dev"
+if [[ -f ".last_built_upstream_sha" ]]; then
+    SHA=$(cat .last_built_upstream_sha | tr -d '\r\n[:space:]')
+    if [[ -n "$SHA" ]]; then
+        BASE_COMMIT="$SHA"
+    fi
+fi
+
+echo "==> [1/4] Resetting $TARGET_DIR to clean upstream ($BASE_COMMIT)..."
 git -C "$TARGET_DIR" checkout Dev
-git -C "$TARGET_DIR" reset --hard origin/Dev
+git -C "$TARGET_DIR" reset --hard "$BASE_COMMIT"
 git -C "$TARGET_DIR" clean -fd
 
 PATCHES=(
@@ -13,6 +21,8 @@ PATCHES=(
     "patches/02-app-updater.patch"
     "patches/03-live-tv.patch"
     "patches/04-hls-downloads.patch"
+    "patches/05-desktop-plugins-fix.patch"
+    "patches/06-version-bump.patch"
 )
 
 for patch in "${PATCHES[@]}"; do

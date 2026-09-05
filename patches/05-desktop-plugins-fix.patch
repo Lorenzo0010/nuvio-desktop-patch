@@ -1,12 +1,1036 @@
-diff --git a/gradle/libs.versions.toml b/gradle/libs.versions.toml
---- a/gradle/libs.versions.toml
-+++ b/gradle/libs.versions.toml
-@@ -28,7 +28,7 @@ compose-icons = "1.1.0"
- androidx-media3 = "1.8.0"
- mpv-android-lib = "0.1.12"
- supabase = "3.4.1"
--quickjsKt = "1.0.5"
-+quickjsKt = "1.0.15"
- ksoup = "0.2.6"
- reorderable = "3.0.0"
- desugarJdkLibs = "2.1.5"
+diff --git a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/addons/AddonPlatform.desktop.kt b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/addons/AddonPlatform.desktop.kt
+index 93e6e0e5..a1292203 100644
+--- a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/addons/AddonPlatform.desktop.kt
++++ b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/addons/AddonPlatform.desktop.kt
+@@ -217,25 +217,43 @@ private fun readAtMostBytes(stream: InputStream, maxBytes: Int): LimitedReadResu
+ 
+ private fun readResponseBodyLimited(body: ResponseBody?, maxBytes: Int): String {
+     if (body == null) return ""
+-    val charset = body.contentType()?.charset(Charsets.UTF_8) ?: Charsets.UTF_8
++    val contentType = body.contentType()
++    val isText = contentType == null ||
++        contentType.type == "text" ||
++        contentType.subtype.contains("json") ||
++        contentType.subtype.contains("xml") ||
++        contentType.subtype.contains("html") ||
++        contentType.subtype.contains("javascript") ||
++        contentType.subtype.contains("x-www-form-urlencoded")
++    val defaultCharset = if (isText) Charsets.UTF_8 else Charsets.ISO_8859_1
++    val charset = contentType?.charset(defaultCharset) ?: defaultCharset
+     val readResult = body.byteStream().use { stream ->
+         readAtMostBytes(stream, maxBytes.coerceAtLeast(0))
+     }
+     val decoded = runCatching {
+         String(readResult.bytes, charset)
+     }.getOrElse {
+-        String(readResult.bytes, Charsets.UTF_8)
++        String(readResult.bytes, Charsets.ISO_8859_1)
+     }
+     return if (readResult.truncated) decoded + truncationSuffix else decoded
+ }
+ 
+ private fun readResponseBody(body: ResponseBody?): String {
+     if (body == null) return ""
++    val contentType = body.contentType()
++    val isText = contentType == null ||
++        contentType.type == "text" ||
++        contentType.subtype.contains("json") ||
++        contentType.subtype.contains("xml") ||
++        contentType.subtype.contains("html") ||
++        contentType.subtype.contains("javascript") ||
++        contentType.subtype.contains("x-www-form-urlencoded")
++    val defaultCharset = if (isText) Charsets.UTF_8 else Charsets.ISO_8859_1
++    val charset = contentType?.charset(defaultCharset) ?: defaultCharset
+     val bytes = body.bytes()
+     return runCatching {
+-        val charset = body.contentType()?.charset(Charsets.UTF_8) ?: Charsets.UTF_8
+         String(bytes, charset)
+     }.getOrElse {
+-        String(bytes, Charsets.UTF_8)
++        String(bytes, Charsets.ISO_8859_1)
+     }
+ }
+diff --git a/composeApp/src/desktopTest/kotlin/com/nuvio/app/features/plugins/PluginRuntimeDesktopTest.kt b/composeApp/src/desktopTest/kotlin/com/nuvio/app/features/plugins/PluginRuntimeDesktopTest.kt
+index 01dfe7e9..6fa1f648 100644
+--- a/composeApp/src/desktopTest/kotlin/com/nuvio/app/features/plugins/PluginRuntimeDesktopTest.kt
++++ b/composeApp/src/desktopTest/kotlin/com/nuvio/app/features/plugins/PluginRuntimeDesktopTest.kt
+@@ -4,6 +4,7 @@ import com.nuvio.app.features.plugins.runtime.PluginRuntime
+ import kotlinx.coroutines.runBlocking
+ import kotlin.test.Test
+ import kotlin.test.assertEquals
++import kotlin.test.assertTrue
+ 
+ class PluginRuntimeDesktopTest {
+     @Test
+@@ -58,4 +59,261 @@ class PluginRuntimeDesktopTest {
+         assertEquals(1, results.size)
+         assertEquals("Fetch stream ok", results.single().title)
+     }
++
++    @Test
++    fun `desktop runtime handles emojis and unicode in stream results without truncation`() = runBlocking {
++        val results = PluginRuntime.executePlugin(
++            code = """
++                module.exports.getStreams = async function(tmdbId, mediaType) {
++                    return [{
++                        title: "🎬 Matrix | 🇮🇹",
++                        name: "📡 StreamingCommunity",
++                        url: "https://example.test/stream.m3u8",
++                        quality: "1080p",
++                        language: "🇮🇹",
++                        provider: "streamingcommunity",
++                        type: "direct"
++                    }];
++                };
++            """.trimIndent(),
++            tmdbId = "603",
++            mediaType = "movie",
++            season = null,
++            episode = null,
++            scraperId = "unicode-test",
++        )
++
++        assertEquals(1, results.size)
++        assertEquals("🎬 Matrix | 🇮🇹", results.single().title)
++        assertEquals("📡 StreamingCommunity", results.single().name)
++        assertEquals("🇮🇹", results.single().language)
++        assertEquals("https://example.test/stream.m3u8", results.single().url)
++    }
++
++    @Test
++    fun `desktop runtime supports setTimeout and clearTimeout`() = runBlocking {
++        val results = PluginRuntime.executePlugin(
++            code = """
++                module.exports.getStreams = async function(tmdbId, mediaType) {
++                    var ran = false;
++                    var clearedRan = false;
++                    var clearedTimer = setTimeout(function() { clearedRan = true; }, 50);
++                    clearTimeout(clearedTimer);
++
++                    await new Promise(function(resolve) { setTimeout(resolve, 50); });
++                    ran = true;
++
++                    return [{
++                        title: "Timeout test: ran=" + ran + ", cleared=" + clearedRan,
++                        url: "https://example.test/stream.m3u8",
++                        provider: "Timer Test"
++                    }];
++                };
++            """.trimIndent(),
++            tmdbId = "603",
++            mediaType = "movie",
++            season = null,
++            episode = null,
++            scraperId = "timer-test",
++        )
++
++        assertEquals(1, results.size)
++        assertEquals("Timeout test: ran=true, cleared=false", results.single().title)
++    }
++
++    @Test
++    fun `desktop runtime supports Buffer, process and dirname globals`() = runBlocking {
++        val results = PluginRuntime.executePlugin(
++            code = """
++                module.exports.getStreams = async function(tmdbId, mediaType) {
++                    var buf = Buffer.from("hello world", "utf8");
++                    var b64 = buf.toString("base64");
++                    var back = Buffer.from(b64, "base64").toString("utf8");
++                    var isBuf = Buffer.isBuffer(buf);
++                    var bLen = Buffer.byteLength("hello");
++                    var platform = process.platform;
++                    var dName = __dirname;
++                    return [{
++                        title: "Buffer test: " + back + ", isBuf=" + isBuf + ", bLen=" + bLen + ", plat=" + platform + ", dir=" + dName,
++                        url: "https://example.test/stream.m3u8",
++                        provider: "Buffer Test"
++                    }];
++                };
++            """.trimIndent(),
++            tmdbId = "603",
++            mediaType = "movie",
++            season = null,
++            episode = null,
++            scraperId = "buffer-test",
++        )
++
++        assertEquals(1, results.size)
++        assertEquals("Buffer test: hello world, isBuf=true, bLen=5, plat=win32, dir=/", results.single().title)
++    }
++
++    @Test
++    fun `desktop runtime supports require crypto, path, fs and child_process`() = runBlocking {
++        val results = PluginRuntime.executePlugin(
++            code = """
++                var crypto = require("crypto");
++                var path = require("path");
++                var fs = require("fs");
++                var cp = require("child_process");
++
++                module.exports.getStreams = async function(tmdbId, mediaType) {
++                    var sha = crypto.createHash("sha256").update("test-string").digest("hex");
++                    var sha1 = crypto.createHash("sha1").update("test-string").digest("hex");
++                    var rand = crypto.randomBytes(4);
++                    var joined = path.join("/foo", "bar", "baz.js");
++                    var ext = path.extname(joined);
++                    var exists = fs.existsSync("/some/file");
++                    return [{
++                        title: "Crypto: sha256=" + sha.substring(0, 8) + ", sha1=" + sha1.substring(0, 8) + ", path=" + joined + ", ext=" + ext + ", exists=" + exists,
++                        url: "https://example.test/stream.m3u8",
++                        provider: "Node Compat Test"
++                    }];
++                };
++            """.trimIndent(),
++            tmdbId = "603",
++            mediaType = "movie",
++            season = null,
++            episode = null,
++            scraperId = "node-compat-test",
++        )
++
++        assertEquals(1, results.size)
++        assertTrue(results.single().title.startsWith("Crypto: sha256="))
++        assertTrue(results.single().title.contains("path=/foo/bar/baz.js"))
++    }
++
++    @Test
++    fun `desktop runtime supports AbortSignal timeout and abort`() = runBlocking {
++        val results = PluginRuntime.executePlugin(
++            code = """
++                module.exports.getStreams = async function(tmdbId, mediaType) {
++                    var sig1 = AbortSignal.timeout(100);
++                    var sig2 = AbortSignal.abort("custom reason");
++                    var timeoutType = typeof AbortSignal.timeout;
++                    var abortType = typeof AbortSignal.abort;
++                    return [{
++                        title: "AbortSignal: timeout=" + timeoutType + ", abort=" + abortType + ", sig2Aborted=" + sig2.aborted + ", reason=" + sig2.reason,
++                        url: "https://example.test/stream.m3u8",
++                        provider: "AbortSignal Test"
++                    }];
++                };
++            """.trimIndent(),
++            tmdbId = "603",
++            mediaType = "movie",
++            season = null,
++            episode = null,
++            scraperId = "abort-signal-test",
++        )
++
++        assertEquals(1, results.size)
++        assertEquals("AbortSignal: timeout=function, abort=function, sig2Aborted=true, reason=custom reason", results.single().title)
++    }
++
++    @Test
++    fun `desktop runtime supports fetch arrayBuffer`() = runBlocking {
++        val results = PluginRuntime.executePlugin(
++            code = """
++                module.exports.getStreams = async function(tmdbId, mediaType) {
++                    var res = await fetch("https://httpbin.org/get");
++                    var buf = await res.arrayBuffer();
++                    var isBuf = buf instanceof ArrayBuffer;
++                    var byteLen = buf.byteLength;
++                    return [{
++                        title: "ArrayBuffer: isBuf=" + isBuf + ", byteLen=" + (byteLen > 0),
++                        url: "https://example.test/stream.m3u8",
++                        provider: "ArrayBuffer Test"
++                    }];
++                };
++            """.trimIndent(),
++            tmdbId = "603",
++            mediaType = "movie",
++            season = null,
++            episode = null,
++            scraperId = "array-buffer-test",
++        )
++
++        assertEquals(1, results.size)
++        assertEquals("ArrayBuffer: isBuf=true, byteLen=true", results.single().title)
++    }
++
++    @Test
++    fun `test real scrapers from easystreams`() = runBlocking {
++        val providers = listOf(
++            "streamingcommunity" to "https://easystreams.realbestia.com/nuvio/providers/streamingcommunity.js",
++            "altadefinizionestreaming" to "https://easystreams.realbestia.com/nuvio/providers/altadefinizionestreaming.js",
++            "pcc" to "https://easystreams.realbestia.com/nuvio/providers/pcc.js",
++            "guardoserie" to "https://easystreams.realbestia.com/nuvio/providers/guardoserie.js",
++            "animeunity" to "https://easystreams.realbestia.com/nuvio/providers/animeunity.js",
++            "animeworld" to "https://easystreams.realbestia.com/nuvio/providers/animeworld.js",
++            "animesaturn" to "https://easystreams.realbestia.com/nuvio/providers/animesaturn.js",
++            "cc" to "https://easystreams.realbestia.com/nuvio/providers/cc.js",
++            "cinejoy" to "https://easystreams.realbestia.com/nuvio/providers/cinejoy.js"
++        )
++        for ((name, url) in providers) {
++            println("=== Testing scraper: $name ===")
++            try {
++                val code = java.net.URI(url).toURL().readText()
++                val isAnime = name in listOf("animeunity", "animeworld", "animesaturn")
++                val isTvScraper = isAnime || name in listOf("guardoserie")
++                val tmdbId = if (isAnime) "1429" else if (isTvScraper) "1396" else "603"
++                val mediaType = if (isTvScraper) "tv" else "movie"
++                val season = if (isTvScraper) 1 else null
++                val episode = if (isTvScraper) 1 else null
++                val results = PluginRuntime.executePlugin(
++                    code = code,
++                    tmdbId = tmdbId,
++                    mediaType = mediaType,
++                    season = season,
++                    episode = episode,
++                    scraperId = name
++                )
++                println("Scraper $name ($mediaType $tmdbId) returned ${results.size} streams")
++                results.take(2).forEach { println("  -> title='${it.title}', quality='${it.quality}', url='${it.url}'") }
++            } catch (e: Throwable) {
++                println("Scraper $name THREW: ${e.message}")
++                e.printStackTrace()
++            }
++        }
++    }
++
++    @Test
++    fun `test plugin repository with easystreams`() = runBlocking {
++        println("=== Loading PluginRepository state ===")
++        PluginRepository.initialize()
++        val state = PluginRepository.uiState.value
++        println("pluginsEnabled: ${state.pluginsEnabled}")
++        println("repositories count: ${state.repositories.size}")
++        state.repositories.forEach { repo ->
++            println("  Repo: ${repo.name}, url=${repo.manifestUrl}, scrapersCount=${repo.scraperCount}, isRefreshing=${repo.isRefreshing}, error=${repo.errorMessage}")
++        }
++        println("scrapers count: ${state.scrapers.size}")
++        state.scrapers.forEach { scraper ->
++            println("  Scraper: ${scraper.name} id=${scraper.id} enabled=${scraper.enabled} codeLen=${scraper.code.length}")
++        }
++        val enabledMovie = PluginRepository.getEnabledScrapersForType("movie")
++        println("Enabled movie scrapers: ${enabledMovie.size}")
++        for (scraper in enabledMovie.filter { it.name.contains("StreamingCommunity") || it.name.contains("Altadefinizione") }) {
++            println("--- Executing scraper ${scraper.name} with IMDb ID tt0133093 ---")
++            val res = PluginRepository.executeScraper(scraper, "tt0133093", "movie", null, null)
++            val streams = res.getOrNull()
++            println("Scraper ${scraper.name} with IMDb ID: isSuccess=${res.isSuccess}, count=${streams?.size}, err=${res.exceptionOrNull()?.message}")
++            assertTrue(res.isSuccess, "Scraper ${scraper.name} execution should succeed")
++            assertTrue(streams != null && streams.isNotEmpty(), "Scraper ${scraper.name} should return at least 1 stream")
++            streams.forEach { println("  Stream: ${it.title} (${it.quality}) -> ${it.url}") }
++        }
++
++        // Test testScraper for anime scraper (e.g. AnimeUnity or AnimeWorld)
++        val animeScraper = state.scrapers.find { it.name.contains("AnimeUnity") || it.name.contains("AnimeWorld") }
++        if (animeScraper != null) {
++            println("--- Testing testScraper on ${animeScraper.name} ---")
++            val testRes = PluginRepository.testScraper(animeScraper.id)
++            println("testScraper ${animeScraper.name}: isSuccess=${testRes.isSuccess}, count=${testRes.getOrNull()?.size}")
++            assertTrue(testRes.isSuccess, "testScraper for ${animeScraper.name} should succeed")
++            assertTrue(testRes.getOrNull()?.isNotEmpty() == true, "testScraper for ${animeScraper.name} should return streams")
++        }
++    }
+ }
+diff --git a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/PluginRuntime.kt b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/PluginRuntime.kt
+index a0f19002..f0a50ebe 100644
+--- a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/PluginRuntime.kt
++++ b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/PluginRuntime.kt
+@@ -1,5 +1,6 @@
+ package com.nuvio.app.features.plugins.runtime
+ 
++import co.touchlab.kermit.Logger
+ import com.nuvio.app.features.plugins.PluginRuntimeResult
+ import com.nuvio.app.features.plugins.PluginStorage
+ import com.nuvio.app.features.plugins.runtime.crypto.CryptoBridge
+@@ -12,6 +13,7 @@ import com.dokar.quickjs.binding.function
+ import com.nuvio.app.features.plugins.runtime.network.FetchBridge
+ import com.nuvio.app.features.plugins.runtime.network.UrlBridge
+ import com.nuvio.app.features.plugins.runtime.wasm.WasmBridge
++import java.net.URLDecoder
+ import kotlinx.coroutines.CompletableDeferred
+ import kotlinx.coroutines.Dispatchers
+ import kotlinx.coroutines.runBlocking
+@@ -33,6 +35,7 @@ import org.jetbrains.compose.resources.getString
+ private const val PLUGIN_TIMEOUT_MS = 60_000L
+ 
+ internal object PluginRuntime {
++    private val log = Logger.withTag("PluginRuntime")
+     private val json = Json { ignoreUnknownKeys = true }
+ 
+     suspend fun executePlugin(
+@@ -69,8 +72,19 @@ internal object PluginRuntime {
+             val jsRuntime = JsRuntime()
+             val deferred = CompletableDeferred<String?>()
+ 
++            val domBridge = DomBridge()
++            val hostRegistry = HostApiRegistry().apply {
++                addModule(HostFunctions(scraperId) { /* no-op for settings */ })
++                addModule(FetchBridge())
++                addModule(UrlBridge())
++                addModule(CryptoBridge())
++                addModule(WasmBridge())
++                addModule(domBridge)
++            }
++
+             try {
+                 jsRuntime.use {
++                    hostRegistry.registerAll(this)
+                     val polyfillCode = JsBindings.buildPolyfillCode(
+                         scraperIdJson = JsonPrimitive(scraperId).toString(),
+                         settingsJson = "{}"
+@@ -80,6 +94,8 @@ internal object PluginRuntime {
+                     val wrappedCode = """
+                         var module = { exports: {} };
+                         var exports = module.exports;
++                        var __dirname = '/';
++                        var __filename = '/main.js';
+                         (function() {
+                             $code
+                         })();
+@@ -92,19 +108,21 @@ internal object PluginRuntime {
+                                 var onSettings = (typeof module !== 'undefined' && module.exports && module.exports.onSettings) || globalThis.onSettings;
+                                 if (typeof onSettings === 'function') {
+                                     var layout = await onSettings();
+-                                    __capture_settings_result(JSON.stringify(layout || []));
++                                    __capture_settings_result(encodeURIComponent(JSON.stringify(layout || [])));
+                                 } else {
+-                                    __capture_settings_result("[]");
++                                    __capture_settings_result(encodeURIComponent("[]"));
+                                 }
+                             } catch (e) {
+                                 console.error("onSettings error:", e);
+-                                __capture_settings_result("[]");
++                                __capture_settings_result(encodeURIComponent("[]"));
+                             }
+                         })();
+                     """.trimIndent()
+ 
+                     function("__capture_settings_result") { args: Array<Any?> ->
+-                        deferred.complete(args.getOrNull(0)?.toString())
++                        val raw = args.getOrNull(0)?.toString()
++                        val decoded = raw?.let { runCatching { URLDecoder.decode(it, "UTF-8") }.getOrDefault(it) }
++                        deferred.complete(decoded)
+                         null
+                     }
+ 
+@@ -112,7 +130,10 @@ internal object PluginRuntime {
+                     deferred.await()
+                 }
+             } catch (e: Exception) {
++                log.w(e) { "Failed to get plugin settings layout for $scraperId" }
+                 null
++            } finally {
++                domBridge.clear()
+             }
+         }
+     }
+@@ -153,11 +174,18 @@ internal object PluginRuntime {
+                 val wrappedCode = """
+                     var module = { exports: {} };
+                     var exports = module.exports;
++                    var __dirname = '/';
++                    var __filename = '/main.js';
+                     (function() {
+                         $code
+                     })();
+                 """.trimIndent()
+-                evaluate<Any?>(wrappedCode)
++                runCatching {
++                    evaluate<Any?>(wrappedCode)
++                }.onFailure { e ->
++                    log.e(e) { "Failed to evaluate plugin scraper script $scraperId" }
++                    throw e
++                }
+ 
+                 val tmdbIdArg = JsonPrimitive(tmdbId).toString()
+                 val mediaTypeArg = JsonPrimitive(mediaType).toString()
+@@ -169,14 +197,14 @@ internal object PluginRuntime {
+                             var getStreams = module.exports.getStreams || globalThis.getStreams;
+                             if (!getStreams) {
+                                 console.error("getStreams function not found on module.exports or globalThis");
+-                                __capture_result(JSON.stringify([]));
++                                __capture_result(encodeURIComponent(JSON.stringify([])));
+                                 return;
+                             }
+                             var result = await getStreams($tmdbIdArg, $mediaTypeArg, $seasonArg, $episodeArg);
+-                            __capture_result(JSON.stringify(result || []));
++                            __capture_result(encodeURIComponent(JSON.stringify(result || [])));
+                         } catch (e) {
+                             console.error("getStreams error:", e && e.message ? e.message : e, e && e.stack ? e.stack : "");
+-                            __capture_result(JSON.stringify([]));
++                            __capture_result(encodeURIComponent(JSON.stringify([])));
+                         }
+                     })();
+                 """.trimIndent()
+@@ -186,7 +214,11 @@ internal object PluginRuntime {
+             }
+ 
+             // Result is captured inside use block, but returned outside to satisfy compiler
+-            return parseJsonResults(deferred.await())
++            val rawCaptured = deferred.await()
++            val decodedJson = runCatching {
++                URLDecoder.decode(rawCaptured, "UTF-8")
++            }.getOrDefault(rawCaptured)
++            return parseJsonResults(decodedJson)
+         } finally {
+             domBridge.clear()
+         }
+@@ -245,6 +277,8 @@ internal object PluginRuntime {
+                     subtitles = subtitles,
+                 )
+             }.filter { it.url.isNotBlank() }
++        }.onFailure { e ->
++            log.w(e) { "Failed to parse plugin scraper JSON results" }
+         }.getOrElse { emptyList() }
+     }
+ 
+diff --git a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/host/HostFunctions.kt b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/host/HostFunctions.kt
+index 552fbac6..f4fe312f 100644
+--- a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/host/HostFunctions.kt
++++ b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/host/HostFunctions.kt
+@@ -2,8 +2,10 @@ package com.nuvio.app.features.plugins.runtime.host
+ 
+ import co.touchlab.kermit.Logger
+ import com.dokar.quickjs.QuickJs
++import com.dokar.quickjs.binding.asyncFunction
+ import com.dokar.quickjs.binding.define
+ import com.dokar.quickjs.binding.function
++import kotlinx.coroutines.delay
+ 
+ internal class HostFunctions(
+     private val scraperId: String,
+@@ -39,5 +41,15 @@ internal class HostFunctions(
+             onResult(args.getOrNull(0)?.toString() ?: "[]")
+             null
+         }
++
++        runtime.asyncFunction("__native_delay") { args ->
++            val ms = (args.getOrNull(0) as? Number)?.toLong()
++                ?: args.getOrNull(0)?.toString()?.toDoubleOrNull()?.toLong()
++                ?: 0L
++            if (ms > 0) {
++                kotlinx.coroutines.delay(ms)
++            }
++            null
++        }
+     }
+ }
+diff --git a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/js/JsBindings.kt b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/js/JsBindings.kt
+index f8d9d7e7..df73d6fa 100644
+--- a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/js/JsBindings.kt
++++ b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/js/JsBindings.kt
+@@ -9,6 +9,8 @@ internal object JsBindings {
+             if (typeof globalThis.window === 'undefined') globalThis.window = globalThis;
+             if (typeof globalThis.self === 'undefined') globalThis.self = globalThis;
+ 
++            ${timerPolyfill()}
++            ${nodeGlobalsPolyfill()}
+             ${fetchPolyfill()}
+             ${abortControllerPolyfill()}
+             ${base64Polyfill()}
+@@ -69,6 +71,31 @@ internal object JsBindings {
+                     } catch (e) {
+                         return Promise.resolve(null);
+                     }
++                },
++                arrayBuffer: function() {
++                    var body = parsed.body || '';
++                    var len = body.length;
++                    var bytes = new Uint8Array(len);
++                    for (var i = 0; i < len; i++) {
++                        bytes[i] = body.charCodeAt(i) & 0xff;
++                    }
++                    return Promise.resolve(bytes.buffer);
++                },
++                blob: function() {
++                    var body = parsed.body || '';
++                    return Promise.resolve({
++                        size: body.length,
++                        type: (parsed.headers && parsed.headers['content-type']) || '',
++                        text: function() { return Promise.resolve(body); },
++                        arrayBuffer: function() {
++                            var len = body.length;
++                            var bytes = new Uint8Array(len);
++                            for (var i = 0; i < len; i++) {
++                                bytes[i] = body.charCodeAt(i) & 0xff;
++                            }
++                            return Promise.resolve(bytes.buffer);
++                        }
++                    });
+                 }
+             };
+         };
+@@ -96,7 +123,7 @@ internal object JsBindings {
+         }
+ 
+         if (typeof AbortController === 'undefined') {
+-            var AbortController = function() { this.signal = new AbortSignal(); };
++            var AbortController = function() { this.signal = new (globalThis.AbortSignal || AbortSignal)(); };
+             AbortController.prototype.abort = function(reason) {
+                 if (this.signal.aborted) return;
+                 this.signal.aborted = true;
+@@ -105,6 +132,32 @@ internal object JsBindings {
+             };
+             globalThis.AbortController = AbortController;
+         }
++
++        if (typeof AbortSignal !== 'undefined') {
++            if (typeof AbortSignal.timeout !== 'function') {
++                AbortSignal.timeout = function(ms) {
++                    var controller = new (globalThis.AbortController || AbortController)();
++                    setTimeout(function() {
++                        var err;
++                        try {
++                            err = new DOMException('The operation was aborted due to timeout', 'TimeoutError');
++                        } catch (e) {
++                            err = new Error('The operation was aborted due to timeout');
++                            err.name = 'TimeoutError';
++                        }
++                        controller.abort(err);
++                    }, Math.max(0, Number(ms) || 0));
++                    return controller.signal;
++                };
++            }
++            if (typeof AbortSignal.abort !== 'function') {
++                AbortSignal.abort = function(reason) {
++                    var controller = new (globalThis.AbortController || AbortController)();
++                    controller.abort(reason);
++                    return controller.signal;
++                };
++            }
++        }
+     """.trimIndent()
+ 
+     private fun base64Polyfill() = """
+@@ -907,15 +960,310 @@ internal object JsBindings {
+         }
+     """.trimIndent()
+ 
++    private fun nodeGlobalsPolyfill() = """
++        if (typeof globalThis.process === 'undefined') {
++            globalThis.process = {
++                env: {},
++                platform: 'win32',
++                arch: 'x64',
++                cwd: function() { return ''; },
++                version: 'v18.0.0',
++                versions: { node: '18.0.0' },
++                nextTick: function(fn) {
++                    if (typeof fn === 'function') setTimeout(fn, 0);
++                }
++            };
++        }
++
++        if (typeof globalThis.__dirname === 'undefined') globalThis.__dirname = '/';
++        if (typeof globalThis.__filename === 'undefined') globalThis.__filename = '/main.js';
++
++        if (typeof globalThis.Buffer === 'undefined') {
++            var Buffer = function(arg, encoding) {
++                return Buffer.from(arg, encoding);
++            };
++            Buffer.from = function(data, encoding) {
++                if (typeof data === 'string') {
++                    if (encoding === 'base64') {
++                        var binStr = atob(data);
++                        var arr = new Uint8Array(binStr.length);
++                        for (var i = 0; i < binStr.length; i++) arr[i] = binStr.charCodeAt(i);
++                        return Buffer._wrap(arr);
++                    } else if (encoding === 'hex') {
++                        var clean = data.replace(/[^0-9a-fA-F]/g, '');
++                        var arr = new Uint8Array(clean.length / 2);
++                        for (var i = 0; i < clean.length; i += 2) arr[i/2] = parseInt(clean.substr(i, 2), 16);
++                        return Buffer._wrap(arr);
++                    } else {
++                        var bytes = new TextEncoder().encode(data);
++                        return Buffer._wrap(bytes);
++                    }
++                }
++                if (data instanceof Uint8Array) {
++                    return Buffer._wrap(new Uint8Array(data));
++                }
++                if (Array.isArray(data)) {
++                    return Buffer._wrap(new Uint8Array(data));
++                }
++                if (data instanceof ArrayBuffer) {
++                    return Buffer._wrap(new Uint8Array(data));
++                }
++                return Buffer._wrap(new Uint8Array(0));
++            };
++            Buffer.isBuffer = function(b) {
++                return !!(b && b._isBuffer === true);
++            };
++            Buffer.byteLength = function(str, enc) {
++                return new TextEncoder().encode(String(str || '')).length;
++            };
++            Buffer.alloc = function(size, fill) {
++                var arr = new Uint8Array(Number(size) || 0);
++                if (typeof fill === 'number') arr.fill(fill);
++                return Buffer._wrap(arr);
++            };
++            Buffer._wrap = function(u8) {
++                u8._isBuffer = true;
++                u8.toString = function(enc) {
++                    if (enc === 'base64') {
++                        var bin = '';
++                        for (var i = 0; i < this.length; i++) bin += String.fromCharCode(this[i]);
++                        return btoa(bin);
++                    } else if (enc === 'hex') {
++                        var h = '';
++                        for (var i = 0; i < this.length; i++) {
++                            var byteStr = this[i].toString(16);
++                            h += byteStr.length === 1 ? '0' + byteStr : byteStr;
++                        }
++                        return h;
++                    } else {
++                        return new TextDecoder().decode(this);
++                    }
++                };
++                return u8;
++            };
++            globalThis.Buffer = Buffer;
++        }
++    """.trimIndent()
++
+     private fun requirePolyfill() = """
++        var __node_path = {
++            join: function() {
++                var parts = [];
++                for (var i = 0; i < arguments.length; i++) {
++                    if (arguments[i]) parts.push(String(arguments[i]));
++                }
++                return parts.join('/').replace(/\/+/g, '/');
++            },
++            resolve: function() {
++                return __node_path.join.apply(null, arguments);
++            },
++            dirname: function(p) {
++                var str = String(p || '');
++                var idx = Math.max(str.lastIndexOf('/'), str.lastIndexOf('\\'));
++                return idx >= 0 ? str.substring(0, idx) : '.';
++            },
++            basename: function(p, ext) {
++                var b = String(p || '').split(/[\\/]/).pop() || '';
++                if (ext && b.endsWith(ext)) b = b.substring(0, b.length - ext.length);
++                return b;
++            },
++            extname: function(p) {
++                var b = __node_path.basename(p);
++                var idx = b.lastIndexOf('.');
++                return idx >= 0 ? b.substring(idx) : '';
++            },
++            sep: '/',
++            delimiter: ';'
++        };
++
++        var __node_fs = {
++            existsSync: function() { return false; },
++            readFileSync: function() { return ''; },
++            writeFileSync: function() {},
++            statSync: function() { return { isFile: function() { return false; }, isDirectory: function() { return false; } }; },
++            promises: {
++                readFile: async function() { return ''; },
++                writeFile: async function() {}
++            }
++        };
++
++        var __node_child_process = {
++            exec: function(cmd, cb) { if (typeof cb === 'function') cb(null, '', ''); },
++            execFile: function(file, args, cb) {
++                var callback = typeof cb === 'function' ? cb : typeof args === 'function' ? args : null;
++                if (callback) callback(null, '', '');
++            },
++            spawn: function() {
++                return {
++                    on: function() { return this; },
++                    stdout: { on: function() { return this; } },
++                    stderr: { on: function() { return this; } }
++                };
++            },
++            fork: function() { return __node_child_process.spawn(); },
++            execSync: function() { return ''; }
++        };
++
++        var __node_crypto = Object.assign({}, globalThis.crypto, {
++            webcrypto: globalThis.crypto,
++            createHash: function(alg) {
++                var str = '';
++                return {
++                    update: function(data) {
++                        if (typeof data === 'string') {
++                            str += data;
++                        } else if (data instanceof Uint8Array || (data && data._isBuffer)) {
++                            str += new TextDecoder().decode(data);
++                        } else if (data && data.toString) {
++                            str += data.toString();
++                        }
++                        return this;
++                    },
++                    digest: function(enc) {
++                        var a = String(alg || '').toLowerCase();
++                        var hash;
++                        if (a === 'sha256') hash = CryptoJS.SHA256(str);
++                        else if (a === 'sha1') hash = CryptoJS.SHA1(str);
++                        else if (a === 'md5') hash = CryptoJS.MD5(str);
++                        else if (a === 'sha512') hash = CryptoJS.SHA512(str);
++                        else hash = CryptoJS.SHA256(str);
++
++                        if (enc === 'hex') return hash.toString(CryptoJS.enc.Hex);
++                        if (enc === 'base64') return hash.toString(CryptoJS.enc.Base64);
++                        return hash.toString();
++                    }
++                };
++            },
++            createHmac: function(alg, key) {
++                var str = '';
++                var keyStr = typeof key === 'string' ? key : (key && key.toString ? key.toString() : '');
++                return {
++                    update: function(data) {
++                        if (typeof data === 'string') {
++                            str += data;
++                        } else if (data instanceof Uint8Array || (data && data._isBuffer)) {
++                            str += new TextDecoder().decode(data);
++                        } else if (data && data.toString) {
++                            str += data.toString();
++                        }
++                        return this;
++                    },
++                    digest: function(enc) {
++                        var a = String(alg || '').toLowerCase();
++                        var hash;
++                        if (a === 'sha256') hash = CryptoJS.HmacSHA256(str, keyStr);
++                        else if (a === 'sha1') hash = CryptoJS.HmacSHA1(str, keyStr);
++                        else if (a === 'md5') hash = CryptoJS.HmacMD5(str, keyStr);
++                        else hash = CryptoJS.HmacSHA256(str, keyStr);
++
++                        if (enc === 'hex') return hash.toString(CryptoJS.enc.Hex);
++                        if (enc === 'base64') return hash.toString(CryptoJS.enc.Base64);
++                        return hash.toString();
++                    }
++                };
++            },
++            randomBytes: function(size) {
++                var arr = new Uint8Array(Number(size) || 0);
++                globalThis.crypto.getRandomValues(arr);
++                return Buffer._wrap(arr);
++            }
++        });
++
++        var __node_http = {
++            Agent: function() {},
++            request: function(opts, cb) {
++                var emitter = {
++                    on: function(ev, fn) { return this; },
++                    once: function(ev, fn) { return this; },
++                    emit: function() { return this; },
++                    write: function() { return this; },
++                    end: function() { return this; },
++                    setTimeout: function() { return this; },
++                    destroy: function() { return this; }
++                };
++                return emitter;
++            }
++        };
++
++        var __node_axios = function(config) {
++            var url = typeof config === 'string' ? config : (config && config.url) || '';
++            var method = (config && config.method) || 'GET';
++            var headers = (config && config.headers) || {};
++            var data = config && config.data;
++            var body = typeof data === 'object' ? JSON.stringify(data) : (data || undefined);
++            return fetch(url, { method: method, headers: headers, body: body }).then(async function(res) {
++                var text = await res.text();
++                var parsedData = text;
++                try { parsedData = JSON.parse(text); } catch (e) {}
++                return {
++                    data: parsedData,
++                    status: res.status,
++                    statusText: res.statusText,
++                    headers: res.headers,
++                    config: config
++                };
++            });
++        };
++        __node_axios.get = function(url, config) {
++            var conf = Object.assign({}, config, { url: url, method: 'GET' });
++            return __node_axios(conf);
++        };
++        __node_axios.post = function(url, data, config) {
++            var conf = Object.assign({}, config, { url: url, method: 'POST', data: data });
++            return __node_axios(conf);
++        };
++        __node_axios.create = function(defaultConfig) {
++            var instance = function(config) {
++                return __node_axios(Object.assign({}, defaultConfig, config));
++            };
++            instance.get = function(url, config) {
++                return __node_axios(Object.assign({}, defaultConfig, config, { url: url, method: 'GET' }));
++            };
++            instance.post = function(url, data, config) {
++                return __node_axios(Object.assign({}, defaultConfig, config, { url: url, method: 'POST', data: data }));
++            };
++            return instance;
++        };
++
+         var require = function(moduleName) {
+-            if (moduleName === 'cheerio' || moduleName === 'cheerio-without-node-native' || moduleName === 'react-native-cheerio') {
++            var name = String(moduleName || '').trim();
++            if (name === 'cheerio' || name === 'cheerio-without-node-native' || name === 'react-native-cheerio') {
+                 return cheerio;
+             }
+-            if (moduleName === 'crypto-js') {
++            if (name === 'crypto-js') {
+                 return CryptoJS;
+             }
+-            throw new Error("Module '" + moduleName + "' is not available");
++            if (name === 'crypto') {
++                return __node_crypto;
++            }
++            if (name === 'path') {
++                return __node_path;
++            }
++            if (name === 'fs') {
++                return __node_fs;
++            }
++            if (name === 'child_process') {
++                return __node_child_process;
++            }
++            if (name === 'http' || name === 'https') {
++                return __node_http;
++            }
++            if (name === 'axios') {
++                return __node_axios;
++            }
++            if (name === 'buffer') {
++                return { Buffer: globalThis.Buffer };
++            }
++            if (name === 'undici') {
++                return { fetch: globalThis.fetch };
++            }
++            if (name === 'url') {
++                return { URL: globalThis.URL, URLSearchParams: globalThis.URLSearchParams };
++            }
++            if (typeof console !== 'undefined' && console.warn) {
++                console.warn("Module '" + name + "' is not explicitly implemented, returning stub");
++            }
++            return {};
+         };
+     """.trimIndent()
+ 
+@@ -970,4 +1318,58 @@ internal object JsBindings {
+             };
+         }
+     """.trimIndent()
++
++    private fun timerPolyfill() = """
++        var __next_timer_id = 1;
++        var __active_timers = new Set();
++
++        globalThis.setTimeout = function(fn, delay) {
++            var id = __next_timer_id++;
++            __active_timers.add(id);
++            var ms = Math.max(0, Number(delay) || 0);
++            (async function() {
++                try {
++                    await __native_delay(ms);
++                    if (__active_timers.has(id)) {
++                        __active_timers.delete(id);
++                        if (typeof fn === 'function') {
++                            fn();
++                        } else if (typeof fn === 'string') {
++                            eval(fn);
++                        }
++                    }
++                } catch (e) {}
++            })();
++            return id;
++        };
++
++        globalThis.clearTimeout = function(id) {
++            __active_timers.delete(id);
++        };
++
++        globalThis.setInterval = function(fn, delay) {
++            var id = __next_timer_id++;
++            __active_timers.add(id);
++            var ms = Math.max(0, Number(delay) || 0);
++            (async function() {
++                try {
++                    while (__active_timers.has(id)) {
++                        await __native_delay(ms);
++                        if (__active_timers.has(id)) {
++                            if (typeof fn === 'function') {
++                                fn();
++                            } else if (typeof fn === 'string') {
++                                eval(fn);
++                            }
++                        }
++                    }
++                } catch (e) {}
++            })();
++            return id;
++        };
++
++        globalThis.clearInterval = function(id) {
++            __active_timers.delete(id);
++        };
++    """.trimIndent()
+ }
+diff --git a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/js/JsRuntime.kt b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/js/JsRuntime.kt
+index 704da56c..9ad97f8d 100644
+--- a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/js/JsRuntime.kt
++++ b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/js/JsRuntime.kt
+@@ -2,15 +2,22 @@ package com.nuvio.app.features.plugins.runtime.js
+ 
+ import com.dokar.quickjs.QuickJs
+ import com.dokar.quickjs.quickJs
+-import kotlinx.coroutines.CoroutineDispatcher
+-import kotlinx.coroutines.Dispatchers
++import kotlinx.coroutines.asCoroutineDispatcher
++import java.util.concurrent.Executors
+ 
+-internal class JsRuntime(
+-    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
+-) {
++internal class JsRuntime {
+     suspend fun <T> use(block: suspend QuickJs.() -> T): T {
+-        return quickJs(dispatcher) {
+-            block()
++        val executor = Executors.newSingleThreadExecutor { runnable ->
++            Thread(runnable, "QuickJs-Thread").apply { isDaemon = true }
++        }
++        val dispatcher = executor.asCoroutineDispatcher()
++        return try {
++            quickJs(dispatcher) {
++                block()
++            }
++        } finally {
++            dispatcher.close()
++            executor.shutdown()
+         }
+     }
+ }
+diff --git a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/PluginRepository.kt b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/PluginRepository.kt
+index 8b414962..8cc4255e 100644
+--- a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/PluginRepository.kt
++++ b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/PluginRepository.kt
+@@ -345,12 +345,25 @@ actual object PluginRepository {
+         val scraper = _uiState.value.scrapers.find { it.id == scraperId }
+             ?: return Result.failure(IllegalArgumentException(getString(Res.string.plugins_error_provider_not_found)))
+ 
+-        val mediaType = if (scraper.supportsType("movie")) "movie" else "tv"
++        val isAnime = scraper.name.contains("anime", ignoreCase = true) ||
++            scraper.id.contains("anime", ignoreCase = true) ||
++            scraper.supportedTypes.any { it.equals("anime", ignoreCase = true) }
++        val isTvOnly = !scraper.supportsType("movie") && scraper.supportsType("tv")
++
++        val tmdbId = when {
++            isAnime -> "1429"
++            isTvOnly -> "1396"
++            else -> "603"
++        }
++        val mediaType = when {
++            isAnime || isTvOnly -> "tv"
++            else -> "movie"
++        }
+         val season = if (mediaType == "tv") 1 else null
+         val episode = if (mediaType == "tv") 1 else null
+         return executeScraper(
+             scraper = scraper,
+-            tmdbId = "603",
++            tmdbId = tmdbId,
+             mediaType = mediaType,
+             season = season,
+             episode = episode,

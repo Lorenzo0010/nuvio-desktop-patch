@@ -4,16 +4,26 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-Write-Host "==> [1/4] Resetting $TargetDir to clean upstream Dev..." -ForegroundColor Cyan
+$baseCommit = "origin/Dev"
+if (Test-Path ".last_built_upstream_sha") {
+    $sha = (Get-Content -Path ".last_built_upstream_sha" -Raw).Trim()
+    if ($sha) {
+        $baseCommit = $sha
+    }
+}
+
+Write-Host "==> [1/4] Resetting $TargetDir to clean upstream ($baseCommit)..." -ForegroundColor Cyan
 git -C $TargetDir checkout Dev
-git -C $TargetDir reset --hard origin/Dev
+git -C $TargetDir reset --hard $baseCommit
 git -C $TargetDir clean -fd
 
 $patches = @(
     "patches/01-branding-side-by-side.patch",
     "patches/02-app-updater.patch",
     "patches/03-live-tv.patch",
-    "patches/04-hls-downloads.patch"
+    "patches/04-hls-downloads.patch",
+    "patches/05-desktop-plugins-fix.patch",
+    "patches/06-version-bump.patch"
 )
 
 foreach ($patch in $patches) {

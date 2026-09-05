@@ -1,8 +1,41 @@
 diff --git a/composeApp/build.gradle.kts b/composeApp/build.gradle.kts
-index cab524a..803128c 100644
+index cab524ab..376db6b0 100644
 --- a/composeApp/build.gradle.kts
 +++ b/composeApp/build.gradle.kts
-@@ -500,7 +500,7 @@ val desktopReleaseVersionCode = (
+@@ -416,20 +416,25 @@ fun newestDirectory(root: File): File? =
+ fun jpackageCompatibleVersion(version: String): String {
+     val versionCore = version.substringBefore('-').substringBefore('+').trim()
+     val parts = versionCore.split('.').filter { it.isNotBlank() }
+-    require(parts.isNotEmpty() && parts.size <= 3) {
+-        "Desktop package version must use one to three numeric components: $version"
++    require(parts.isNotEmpty()) {
++        "Desktop package version must have at least one numeric component: $version"
+     }
+     val numbers = parts.map { part ->
+         part.toIntOrNull() ?: error("Desktop package version component is not numeric: $version")
+-    }.toMutableList()
++    }
+     require(numbers.all { it >= 0 }) {
+         "Desktop package version components must not be negative: $version"
+     }
+-    while (numbers.size < 3) {
+-        numbers += 0
++    val major = numbers.getOrElse(0) { 0 }.coerceAtLeast(1)
++    val minor = numbers.getOrElse(1) { 0 }
++    val patch = numbers.getOrElse(2) { 0 }
++    val subpatch = numbers.getOrElse(3) { 0 }
++    val build = if (numbers.size >= 4) {
++        (patch * 100 + subpatch).coerceAtMost(65535)
++    } else {
++        (patch * 100).coerceAtMost(65535)
+     }
+-    numbers[0] = numbers[0].coerceAtLeast(1)
+-    return numbers.joinToString(".")
++    return "$major.$minor.$build"
+ }
+ 
+ plugins {
+@@ -500,7 +505,7 @@ val desktopReleaseVersionCode = (
      ?.toIntOrNull()
      ?: 1
  val desktopReleasePackageVersion = jpackageCompatibleVersion(desktopReleaseVersionName)
@@ -11,7 +44,7 @@ index cab524a..803128c 100644
  val iosDistribution = (
      providers.gradleProperty("nuvio.ios.distribution").orNull
          ?: System.getenv("NUVIO_IOS_DISTRIBUTION")
-@@ -584,9 +584,9 @@ val generateRuntimeConfigs = tasks.register<GenerateRuntimeConfigsTask>("generat
+@@ -584,9 +589,9 @@ val generateRuntimeConfigs = tasks.register<GenerateRuntimeConfigsTask>("generat
      appVersionCode.set(releaseAppVersionCode)
      desktopAppVersionName.set(desktopReleaseVersionName)
      desktopAppVersionCode.set(desktopReleaseVersionCode)
@@ -24,7 +57,7 @@ index cab524a..803128c 100644
      sentryDsn.set(runtimeConfigValue("SENTRY_DSN"))
      sentryDesktopDsn.set(runtimeConfigValue("SENTRY_DESKTOP_DSN"))
      sentryEnvironment.set(
-@@ -920,9 +920,18 @@ val buildWindowsPlayerBridge = tasks.register<Exec>("buildWindowsPlayerBridge")
+@@ -920,9 +925,18 @@ val buildWindowsPlayerBridge = tasks.register<Exec>("buildWindowsPlayerBridge")
  
  val prepareWindowsPlayerRuntime = tasks.register<Sync>("prepareWindowsPlayerRuntime") {
      enabled = isWindowsHost
@@ -43,7 +76,7 @@ index cab524a..803128c 100644
      }
      windowsCppRuntimeDlls.forEach { dllFile ->
          from(dllFile)
-@@ -984,6 +993,7 @@ val prepareMacosPlayerAppResources = tasks.register<Sync>("prepareMacosPlayerApp
+@@ -984,6 +998,7 @@ val prepareMacosPlayerAppResources = tasks.register<Sync>("prepareMacosPlayerApp
  }
  
  tasks.withType<Jar>().configureEach {
@@ -51,7 +84,7 @@ index cab524a..803128c 100644
      if (isWindowsHost && name == "desktopJar") {
          dependsOn(buildWindowsPlayerBridge, prepareWindowsPlayerRuntime, generateWindowsPlayerRuntimeIndex)
          from(windowsPlayerBridgeOutput) {
-@@ -1206,6 +1216,7 @@ kotlin {
+@@ -1206,6 +1221,7 @@ kotlin {
                  implementation(libs.kotlinx.coroutines.swing)
                  implementation(libs.ktor.client.cio)
                  implementation("com.squareup.okhttp3:okhttp:4.12.0")
@@ -59,7 +92,7 @@ index cab524a..803128c 100644
                  implementation(libs.quickjs.kt)
                  implementation(libs.ksoup)
                  implementation(libs.sentry.jvm)
-@@ -1282,7 +1293,7 @@ compose.desktop {
+@@ -1282,7 +1298,7 @@ compose.desktop {
  
          nativeDistributions {
              targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb, TargetFormat.Rpm, TargetFormat.AppImage)
@@ -68,7 +101,7 @@ index cab524a..803128c 100644
              packageVersion = desktopReleasePackageVersion
              vendor = "Nuvio Media"
              if (isMacHost) {
-@@ -1337,13 +1348,13 @@ compose.desktop {
+@@ -1337,13 +1353,13 @@ compose.desktop {
                  upgradeUuid = windowsMsiUpgradeUuid
                  shortcut = true
                  menu = true
@@ -84,7 +117,7 @@ index cab524a..803128c 100644
                  appCategory = "AudioVideo"
              }
          }
-@@ -1396,10 +1407,13 @@ fun publishWindowsMsiOutput(release: Boolean) {
+@@ -1396,10 +1412,13 @@ fun publishWindowsMsiOutput(release: Boolean) {
  
      val distributionName = if (release) "main-release" else "main"
      val outputDir = layout.buildDirectory.dir("compose/binaries/$distributionName/msi").get().asFile
@@ -100,21 +133,15 @@ index cab524a..803128c 100644
          ?: error("Expected Windows MSI output in ${outputDir.absolutePath}")
  
      if (sourceMsi.canonicalFile != finalMsi.canonicalFile) {
-@@ -1679,3 +1693,4 @@ configurations.all {
+@@ -1679,3 +1698,4 @@ configurations.all {
      exclude(group = "androidx.media3", module = "media3-exoplayer")
      exclude(group = "androidx.media3", module = "media3-ui")
  }
 +
 diff --git a/composeApp/src/desktopMain/kotlin/com/nuvio/app/Main.kt b/composeApp/src/desktopMain/kotlin/com/nuvio/app/Main.kt
-index 9b34f40..5989755 100644
+index 9b34f404..5989755b 100644
 --- a/composeApp/src/desktopMain/kotlin/com/nuvio/app/Main.kt
 +++ b/composeApp/src/desktopMain/kotlin/com/nuvio/app/Main.kt
-@@ -1,4 +1,4 @@
--package com.nuvio.app
-+﻿package com.nuvio.app
- 
- import androidx.compose.foundation.layout.fillMaxSize
- import androidx.compose.runtime.DisposableEffect
 @@ -122,7 +122,7 @@ fun main(args: Array<String>) {
                  SentryInitializer.close()
                  exitApplication()
@@ -124,17 +151,8 @@ index 9b34f40..5989755 100644
              state = windowState,
              icon = painterResource(appIconState.selected.transparentPreviewResource),
          ) {
-@@ -210,7 +210,7 @@ fun main(args: Array<String>) {
-                 App()
-             } else {
-                 // The player surface reads LocalNuvioPlatformDensity, which only
--                // NuvioTheme provides — the bare smoke harness must supply it too.
-+                // NuvioTheme provides â€” the bare smoke harness must supply it too.
-                 NuvioTheme {
-                     PlatformPlayerSurface(
-                         sourceUrl = smokePlayerUrl,
 diff --git a/composeApp/src/desktopMain/kotlin/com/nuvio/app/core/storage/DesktopStorage.kt b/composeApp/src/desktopMain/kotlin/com/nuvio/app/core/storage/DesktopStorage.kt
-index 3bf9ebf..1168370 100644
+index 3bf9ebf5..11683704 100644
 --- a/composeApp/src/desktopMain/kotlin/com/nuvio/app/core/storage/DesktopStorage.kt
 +++ b/composeApp/src/desktopMain/kotlin/com/nuvio/app/core/storage/DesktopStorage.kt
 @@ -44,14 +44,14 @@ internal object DesktopStorage {
@@ -183,7 +201,7 @@ index 3bf9ebf..1168370 100644
          }
      }
 diff --git a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/player/desktop/NativePlayerBridge.kt b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/player/desktop/NativePlayerBridge.kt
-index 9d78dea..5493852 100644
+index 9d78dea9..54938525 100644
 --- a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/player/desktop/NativePlayerBridge.kt
 +++ b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/player/desktop/NativePlayerBridge.kt
 @@ -19,6 +19,7 @@ internal object NativePlayerBridge {

@@ -3980,9 +3980,9 @@ index 0000000..602b8e1
 +) {
 +    private val _dnsProvider = MutableStateFlow(
 +        runCatching {
-+            val name = storage.getDnsProvider() ?: DnsProvider.SYSTEM.name
++            val name = storage.getDnsProvider() ?: DnsProvider.CLOUDFLARE.name
 +            DnsProvider.valueOf(name)
-+        }.getOrDefault(DnsProvider.SYSTEM)
++        }.getOrDefault(DnsProvider.CLOUDFLARE)
 +    )
 +    val dnsProvider: StateFlow<DnsProvider> = _dnsProvider.asStateFlow()
 +
@@ -4309,7 +4309,7 @@ index 6f635d6..2d4fb19 100644
 +
 +    override fun lookup(hostname: String): List<InetAddress> {
 +        val currentProvider = runCatching { globalNetworkSettingsRepository?.dnsProvider?.value }
-+            .getOrNull() ?: DnsProvider.SYSTEM
++            .getOrNull() ?: DnsProvider.CLOUDFLARE
 +
 +        val selectedDns = when (currentProvider) {
 +            DnsProvider.CLOUDFLARE -> cloudflareDns
