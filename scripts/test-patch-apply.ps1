@@ -44,6 +44,7 @@ New-Item -ItemType Directory -Path "$TargetDir\composeApp\build\native\windows" 
 New-Item -ItemType Directory -Path "$TargetDir\composeApp\src\desktopMain\native\windows\runtime" -Force | Out-Null
 Copy-Item "assets\native\windows\player_bridge.dll" "$TargetDir\composeApp\build\native\windows\player_bridge.dll" -Force
 Copy-Item "assets\native\windows\WebView2Loader.dll" "$TargetDir\composeApp\src\desktopMain\native\windows\runtime\WebView2Loader.dll" -Force
+if (-not (Test-Path "$TargetDir\local.properties")) { Set-Content -Path "$TargetDir\local.properties" -Value "# local.properties" }
 
 git -C $TargetDir status --short
 

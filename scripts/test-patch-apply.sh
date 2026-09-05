@@ -38,5 +38,6 @@ echo "==> [4/4] All patches applied successfully!"
 mkdir -p "$TARGET_DIR/composeApp/build/native/windows" "$TARGET_DIR/composeApp/src/desktopMain/native/windows/runtime"
 cp -f "assets/native/windows/player_bridge.dll" "$TARGET_DIR/composeApp/build/native/windows/player_bridge.dll" 2>/dev/null || true
 cp -f "assets/native/windows/WebView2Loader.dll" "$TARGET_DIR/composeApp/src/desktopMain/native/windows/runtime/WebView2Loader.dll" 2>/dev/null || true
+[[ -f "$TARGET_DIR/local.properties" ]] || touch "$TARGET_DIR/local.properties"
 
 git -C "$TARGET_DIR" status --short

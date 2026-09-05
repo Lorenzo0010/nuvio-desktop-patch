@@ -4,5 +4,5 @@ index a3ae25c6..8486fc50 100644
 +++ b/composeApp/Configuration/DesktopVersion.properties
 @@ -1,2 +1,2 @@
 -VERSION_NAME=0.1.22-alpha
-+VERSION_NAME=0.1.22.3-alpha
++VERSION_NAME=0.1.22.4-alpha
  VERSION_CODE=22
