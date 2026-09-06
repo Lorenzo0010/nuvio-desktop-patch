@@ -9,6 +9,17 @@ Mantenere il fork e le patch personalizzate perfettamente allineate con l'upstre
 
 ---
 
+## 🔗 Repository Collegati (Ecosistema Nuvio Plus)
+Questo repository (`Nuvio Desktop` / `nuvio-desktop-patch`) e il repository Mobile (`F:\GitHub\nuvio`, `Nuvio Mobile` / `nuvio-patch`) sono **strettamente collegati** e formano l'ecosistema multipiattaforma **Nuvio Plus**:
+- **Desktop**: `F:\GitHub\nuviodesktop` (Remote fork: `Lorenzo0010/nuvio-desktop-patch`, Upstream: `https://github.com/NuvioMedia/NuvioDesktop.git`, branch `Dev`)
+- **Mobile / Android**: `F:\GitHub\nuvio` (Remote fork: `Lorenzo0010/nuvio-patch`, Upstream: `https://github.com/NuvioMedia/NuvioMobile.git`, branch `cmp-rewrite`)
+
+### Principi di Condivisione e Allineamento:
+1. **Feature Parity e Logica Condivisa**: Le feature Plus introdotte (es. Live TV con M3U parser/storage, download e gestione multitraccia HLS, patch ai plugin JS/bridges, prefetching dei link di streaming, configurazioni branding/aggiornamenti) seguono la stessa architettura logica. Quando si implementa, ottimizza o corregge una feature su un repository, verificare se la medesima logica o fix è applicabile o deve essere sincronizzata nell'altro.
+2. **Architettura Compose Multiplatform**: Entrambe le codebase sono basate su Kotlin Multiplatform / Compose Multiplatform (`composeApp`), pertanto molti file di UI, viewmodel, modelli dati o utilità possono essere condivisi o adattati direttamente tra Desktop e Mobile.
+
+---
+
 ## 🛡️ Regola Assoluta di Isolamento (Side-by-Side)
 1. **Cartelle Dati Indipendenti**: L'applicazione Nuvio Plus Desktop DEVE utilizzare percorsi di persistenza separati rispetto all'app originale Nuvio:
    - Windows AppData: `%APPDATA%\NuvioPlus` (invece di `%APPDATA%\Nuvio`)
@@ -58,6 +69,9 @@ Le patch si trovano in `patches/` e vanno applicate in ordine numerico:
 2. `patches/02-app-updater.patch` (Reindirizzamento updater su `Lorenzo0010/nuvio-desktop-patch`)
 3. `patches/03-live-tv.patch` (Funzionalità Live TV, storage canali M3U, drawer in-player, sidebar e navigation bar desktop)
 4. `patches/04-hls-downloads.patch` (Download offline e streaming HLS multitraccia, decrittazione hardware AES-128, picker cartella e gestione download)
+5. `patches/05-desktop-plugins-fix.patch` (Runtime plugin QuickJS per desktop e correzioni host bindings)
+6. `patches/06-stream-prefetch.patch` (Menu impostazioni Patches Plus e precaricamento sorgenti streaming in background su MetaDetailsScreen)
+7. `patches/07-version-bump.patch` (Incremento versione desktop a `0.1.22.5-alpha`)
 
 Esegui lo script di test:
 - PowerShell: `powershell -ExecutionPolicy Bypass -File .\scripts\test-patch-apply.ps1`

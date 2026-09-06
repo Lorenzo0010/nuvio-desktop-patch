@@ -22,7 +22,8 @@ PATCHES=(
     "patches/03-live-tv.patch"
     "patches/04-hls-downloads.patch"
     "patches/05-desktop-plugins-fix.patch"
-    "patches/06-version-bump.patch"
+    "patches/06-stream-prefetch.patch"
+    "patches/07-version-bump.patch"
 )
 
 for patch in "${PATCHES[@]}"; do
