@@ -1,10 +1,102 @@
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/updater/AppUpdater.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/updater/AppUpdater.kt
+index cca5a715..8ce9e86c 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/updater/AppUpdater.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/updater/AppUpdater.kt
+@@ -88,28 +88,41 @@ private object VersionUtils {
+         val normalized = normalize(raw)
+         if (normalized.isBlank()) return null
+ 
+-        val parts = normalized.split('.', '-', '_')
++        // Ignore commit hashes, pre-release suffixes or build metadata (e.g. "-alpha", "-7950aba", "+build")
++        val versionBase = normalized.substringBefore('-').substringBefore('+').trim()
++        if (versionBase.isBlank()) return null
++
++        val parts = versionBase.split('.', '_')
+             .filter { it.isNotBlank() }
+             .mapNotNull { token -> token.takeWhile { it.isDigit() }.toIntOrNull() }
++            .toMutableList()
++
++        if (parts.isEmpty()) return null
++
++        // 4-digit rule: pad with 0 if fewer than 4 components are present (e.g. "0.1.22" -> [0, 1, 22, 0])
++        while (parts.size < 4) {
++            parts.add(0)
++        }
+ 
+-        return parts.takeIf { it.isNotEmpty() }
++        return parts
+     }
+ 
+     fun isRemoteNewer(remote: String?, local: String?): Boolean {
+-        val remoteParts = parseVersionParts(remote)
+-        val localParts = parseVersionParts(local)
++        val remoteNormalized = normalize(remote)
++        val localNormalized = normalize(local)
+ 
+-        if (remoteParts == null || localParts == null) {
+-            val remoteValue = normalize(remote)
+-            val localValue = normalize(local)
+-            return remoteValue.isNotBlank() && localValue.isNotBlank() && remoteValue != localValue
+-        }
++        if (remoteNormalized.isBlank() || localNormalized.isBlank()) return false
++        if (remoteNormalized == localNormalized) return false
++
++        val remoteParts = parseVersionParts(remoteNormalized) ?: return false
++        val localParts = parseVersionParts(localNormalized) ?: return false
+ 
+-        val maxSize = maxOf(remoteParts.size, localParts.size)
++        val maxSize = maxOf(remoteParts.size, localParts.size, 4)
+         for (index in 0 until maxSize) {
+-            val remoteValue = remoteParts.getOrElse(index) { 0 }
+-            val localValue = localParts.getOrElse(index) { 0 }
+-            if (remoteValue != localValue) return remoteValue > localValue
++            val remotePart = remoteParts.getOrElse(index) { 0 }
++            val localPart = localParts.getOrElse(index) { 0 }
++            if (remotePart > localPart) return true
++            if (remotePart < localPart) return false
+         }
+         return false
+     }
+@@ -177,9 +190,14 @@ private object AppUpdaterRepository {
+             return true
+         }
+ 
+-        return listOf(tagName, name)
++        val textMatches = listOf(tagName, name)
+             .filterNotNull()
+-            .any { value -> value.contains(channel, ignoreCase = true) }
++            .any { value ->
++                value.contains(channel, ignoreCase = true) ||
++                value.contains("plus", ignoreCase = true) ||
++                value.contains("enhanced", ignoreCase = true)
++            }
++        return textMatches || targetCommitish.isNullOrBlank() || tagName?.isNotBlank() == true
+     }
+ 
+ }
+@@ -260,7 +278,7 @@ class AppUpdaterController internal constructor(
+             result.onSuccess { update ->
+                 val remoteNewer = VersionUtils.isRemoteNewer(update.tag, AppUpdaterPlatform.currentVersionName)
+                 val ignored = ignoredTag != null && ignoredTag == update.tag
+-                val shouldShowDialog = force || (remoteNewer && !ignored)
++                val shouldShowDialog = remoteNewer && (force || !ignored)
+ 
+                 _uiState.update { state ->
+                     state.copy(
 diff --git a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/updater/AppUpdaterPlatform.desktop.kt b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/updater/AppUpdaterPlatform.desktop.kt
-index 7a1fde6..bda47b1 100644
+index 7a1fde6c..203c9dd1 100644
 --- a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/updater/AppUpdaterPlatform.desktop.kt
 +++ b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/updater/AppUpdaterPlatform.desktop.kt
-@@ -1,4 +1,4 @@
--package com.nuvio.app.features.updater
-+﻿package com.nuvio.app.features.updater
+@@ -51,9 +51,9 @@ actual object AppUpdaterPlatform {
+         get() = currentOs != DesktopUpdaterOs.UNKNOWN && linuxInstallMethod != LinuxInstallMethod.FLATPAK
  
- import com.nuvio.app.core.build.AppVersionConfig
- import com.nuvio.app.core.storage.DesktopStorage
+     actual val releaseSource: AppUpdateReleaseSource = AppUpdateReleaseSource(
+-        owner = "NuvioMedia",
+-        repo = "NuvioDesktop",
+-        channelBranch = null,
++        owner = "Lorenzo0010",
++        repo = "nuvio-desktop-patch",
++        channelBranch = "main",
+         includePrereleases = true,
+         userAgent = "NuvioDesktop",
+     )
