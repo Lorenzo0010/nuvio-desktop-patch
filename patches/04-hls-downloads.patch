@@ -2089,7 +2089,7 @@ index 48da488..2c91b1b 100644
      sortedWith(downloadSeriesEpisodeComparator)
  
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.kt
-index 077b853..82a08ee 100644
+index 077b853..3e58811 100644
 --- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.kt
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.kt
 @@ -1,9 +1,24 @@
@@ -2130,19 +2130,20 @@ index 077b853..82a08ee 100644
      ): DownloadsTaskHandle
  
      fun removeFile(localFileUri: String?): Boolean
-@@ -24,5 +42,7 @@ internal expect object DownloadsPlatformDownloader {
+@@ -24,5 +42,8 @@ internal expect object DownloadsPlatformDownloader {
  
      fun resolveLocalFileUri(localFileUri: String?, destinationFileName: String): String?
  
 +    fun fetchUrlAsString(url: String, headers: Map<String, String>): String?
 +
      fun openDownloadsDirectory(): Boolean
++    suspend fun probeIsHls(url: String, headers: Map<String, String>): Boolean
  }
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsRepository.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsRepository.kt
-index c6a95c8..a79ab77 100644
+index c6a95c8..dfe4b28 100644
 --- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsRepository.kt
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsRepository.kt
-@@ -1,6 +1,13 @@
+@@ -1,6 +1,14 @@
  package com.nuvio.app.features.downloads
  
 +import com.nuvio.app.core.logging.InAppLogger
@@ -2153,10 +2154,11 @@ index c6a95c8..a79ab77 100644
 +import kotlinx.coroutines.SupervisorJob
 +import kotlinx.coroutines.delay
 +import kotlinx.coroutines.launch
++import kotlinx.coroutines.withContext
  import kotlinx.coroutines.runBlocking
  import kotlinx.coroutines.flow.MutableStateFlow
  import kotlinx.coroutines.flow.StateFlow
-@@ -14,27 +21,39 @@ import nuvio.composeapp.generated.resources.*
+@@ -14,27 +22,39 @@ import nuvio.composeapp.generated.resources.*
  import org.jetbrains.compose.resources.getString
  
  object DownloadsRepository {
@@ -2198,7 +2200,7 @@ index c6a95c8..a79ab77 100644
          hasLoaded = false
          _uiState.value = DownloadsUiState()
          notifyLiveStatusPlatform()
-@@ -102,6 +121,13 @@ object DownloadsRepository {
+@@ -102,6 +122,13 @@ object DownloadsRepository {
          return resolvedUri
      }
  
@@ -2212,7 +2214,7 @@ index c6a95c8..a79ab77 100644
      fun enqueueFromStream(
          contentType: String,
          videoId: String,
-@@ -128,6 +154,162 @@ object DownloadsRepository {
+@@ -128,6 +155,66 @@ object DownloadsRepository {
              return DownloadEnqueueResult.UnsupportedFormat
          }
  
@@ -2236,6 +2238,14 @@ index c6a95c8..a79ab77 100644
 +            stream = stream,
 +            sourceUrl = sourceUrl,
 +        )
++    }
++
++    suspend fun probeIsHls(stream: StreamItem): Boolean {
++        val sourceUrl = stream.playableDirectUrl?.trim()?.takeIf { it.isNotBlank() } ?: return false
++        val headers = sanitizeRequestHeaders(stream.behaviorHints.proxyHeaders?.request)
++        return withContext(Dispatchers.IO) {
++            DownloadsPlatformDownloader.probeIsHls(sourceUrl, headers)
++        }
 +    }
 +
 +    fun fetchHlsMasterPlaylist(stream: StreamItem): HlsStreamMetadata? {
@@ -2268,19 +2278,13 @@ index c6a95c8..a79ab77 100644
 +    ): DownloadEnqueueResult {
 +        ensureLoaded()
 +
-+        val now = DownloadsClock.nowEpochMs()
-+        val logicalKey = buildLogicalKey(
-+            parentMetaId = parentMetaId,
-+            seasonNumber = seasonNumber,
-+            episodeNumber = episodeNumber,
-+        )
-+
-+        var replacedExisting = false
-+        val currentItems = _uiState.value.items.toMutableList()
-+        val existing = currentItems.firstOrNull { it.logicalContentKey == logicalKey }
-+        if (existing != null) {
-+            replacedExisting = true
-+            activeHandles.remove(existing.id)?.cancel()
+         val now = DownloadsClock.nowEpochMs()
+         val logicalKey = buildLogicalKey(
+             parentMetaId = parentMetaId,
+@@ -141,6 +228,112 @@ object DownloadsRepository {
+         if (existing != null) {
+             replacedExisting = true
+             activeHandles.remove(existing.id)?.cancel()
 +            processingRemovalJobs.remove(existing.id)?.cancel()
 +            _trackProgress.update { it - existing.id }
 +            DownloadsPlatformDownloader.removeFile(playableLocalFileUri(existing) ?: existing.localFileUri)
@@ -2372,19 +2376,25 @@ index c6a95c8..a79ab77 100644
 +        stream: StreamItem,
 +        sourceUrl: String,
 +    ): DownloadEnqueueResult {
-         val now = DownloadsClock.nowEpochMs()
-         val logicalKey = buildLogicalKey(
-             parentMetaId = parentMetaId,
-@@ -141,6 +323,8 @@ object DownloadsRepository {
-         if (existing != null) {
-             replacedExisting = true
-             activeHandles.remove(existing.id)?.cancel()
++        val now = DownloadsClock.nowEpochMs()
++        val logicalKey = buildLogicalKey(
++            parentMetaId = parentMetaId,
++            seasonNumber = seasonNumber,
++            episodeNumber = episodeNumber,
++        )
++
++        var replacedExisting = false
++        val currentItems = _uiState.value.items.toMutableList()
++        val existing = currentItems.firstOrNull { it.logicalContentKey == logicalKey }
++        if (existing != null) {
++            replacedExisting = true
++            activeHandles.remove(existing.id)?.cancel()
 +            processingRemovalJobs.remove(existing.id)?.cancel()
 +            _trackProgress.update { it - existing.id }
              DownloadsPlatformDownloader.removeFile(playableLocalFileUri(existing) ?: existing.localFileUri)
              DownloadsPlatformDownloader.removePartialFile(existing.fileName)
              currentItems.removeAll { it.id == existing.id }
-@@ -154,6 +338,7 @@ object DownloadsRepository {
+@@ -154,6 +347,7 @@ object DownloadsRepository {
              episodeTitle = episodeTitle,
              fallbackTitle = stream.streamLabel,
              sourceUrl = sourceUrl,
@@ -2392,7 +2402,7 @@ index c6a95c8..a79ab77 100644
              nowEpochMs = now,
          )
  
-@@ -249,6 +434,8 @@ object DownloadsRepository {
+@@ -249,6 +443,8 @@ object DownloadsRepository {
          val item = _uiState.value.items.firstOrNull { it.id == downloadId } ?: return
  
          activeHandles.remove(downloadId)?.cancel()
@@ -2401,7 +2411,7 @@ index c6a95c8..a79ab77 100644
          DownloadsPlatformDownloader.removeFile(playableLocalFileUri(item) ?: item.localFileUri)
          DownloadsPlatformDownloader.removePartialFile(item.fileName)
  
-@@ -291,13 +478,36 @@ object DownloadsRepository {
+@@ -291,13 +487,36 @@ object DownloadsRepository {
          }
      }
  
@@ -2439,7 +2449,7 @@ index c6a95c8..a79ab77 100644
          val handle = DownloadsPlatformDownloader.start(
              request = request,
              onProgress = { downloadedBytes, totalBytes ->
-@@ -313,33 +523,82 @@ object DownloadsRepository {
+@@ -313,33 +532,82 @@ object DownloadsRepository {
                          )
                      }
                  }
@@ -2530,7 +2540,7 @@ index c6a95c8..a79ab77 100644
                          current
                      } else {
                          current.copy(
-@@ -350,33 +609,49 @@ object DownloadsRepository {
+@@ -350,33 +618,49 @@ object DownloadsRepository {
                      }
                  }
              },
@@ -2595,7 +2605,7 @@ index c6a95c8..a79ab77 100644
      }
  
      private fun publish(items: List<DownloadItem>) {
-@@ -502,6 +777,7 @@ private fun buildFileName(
+@@ -502,6 +786,7 @@ private fun buildFileName(
      episodeTitle: String?,
      fallbackTitle: String,
      sourceUrl: String,
@@ -2603,7 +2613,7 @@ index c6a95c8..a79ab77 100644
      nowEpochMs: Long,
  ): String {
      val baseTitle = if (seasonNumber != null && episodeNumber != null) {
-@@ -520,7 +796,7 @@ private fun buildFileName(
+@@ -520,7 +805,7 @@ private fun buildFileName(
          title.ifBlank { fallbackTitle }
      }
  
@@ -2612,7 +2622,7 @@ index c6a95c8..a79ab77 100644
      return buildString {
          append(baseTitle.sanitizeFileName().ifBlank { "download" }.take(92))
          append('_')
-@@ -530,6 +806,44 @@ private fun buildFileName(
+@@ -530,6 +815,44 @@ private fun buildFileName(
      }
  }
  
@@ -2657,7 +2667,7 @@ index c6a95c8..a79ab77 100644
  private fun String.sanitizeFileName(): String =
      trim().replace(Regex("[^A-Za-z0-9._ -]"), "_")
  
-@@ -549,8 +863,22 @@ private fun String.fileExtensionFromUrl(): String {
+@@ -549,8 +872,22 @@ private fun String.fileExtensionFromUrl(): String {
  private fun String.isSupportedDownloadUrl(): Boolean {
      val normalized = trim().lowercase()
      if (normalized.startsWith("magnet:")) return false
@@ -3412,10 +3422,10 @@ index 0000000..95cea8d
 +}
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/HlsPlaylist.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/HlsPlaylist.kt
 new file mode 100644
-index 0000000..ea3a5f3
+index 0000000..bf9f951
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/HlsPlaylist.kt
-@@ -0,0 +1,462 @@
+@@ -0,0 +1,480 @@
 +package com.nuvio.app.features.downloads
 +
 +internal sealed interface HlsPlaylist {
@@ -3769,6 +3779,12 @@ index 0000000..ea3a5f3
 +    fun isHlsStream(streamType: String?): Boolean =
 +        streamType?.trim().equals("hls", ignoreCase = true)
 +
++    private fun extractResolutionHint(url: String): String? {
++        val lower = url.lowercase()
++        val match = Regex("""(?:m|_)(\d{3,4}p)""").find(lower) ?: Regex("""(\d{3,4}p)""").find(lower)
++        return match?.groupValues?.getOrNull(1)
++    }
++
 +    fun parseMasterPlaylist(content: String, baseUrl: String): HlsMasterPlaylist {
 +        val lines = content.lines()
 +        val variants = mutableListOf<HlsVariant>()
@@ -3816,6 +3832,18 @@ index 0000000..ea3a5f3
 +                }
 +            }
 +            i++
++        }
++
++        if (variants.isEmpty() && (content.contains("#EXTINF:") || content.contains("#EXT-X-TARGETDURATION:"))) {
++            val inferredResolution = extractResolutionHint(baseUrl)
++            variants.add(
++                HlsVariant(
++                    url = baseUrl,
++                    bandwidth = 0L,
++                    resolution = inferredResolution,
++                    codecs = null,
++                )
++            )
 +        }
 +
 +        return HlsMasterPlaylist(variants, audioTracks, subtitleTracks)
@@ -3999,7 +4027,7 @@ index 0000000..d63659c
 +}
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/NetworkSettingsRepository.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/NetworkSettingsRepository.kt
 new file mode 100644
-index 0000000..602b8e1
+index 0000000..d4daa92
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/NetworkSettingsRepository.kt
 @@ -0,0 +1,98 @@
@@ -4252,7 +4280,7 @@ index 0000000..aff23eb
 +internal actual fun currentInAppLogTimestamp(): String =
 +    SimpleDateFormat("HH:mm:ss", Locale.US).format(Date())
 diff --git a/composeApp/src/desktopMain/kotlin/com/nuvio/app/core/network/DesktopIPv4FirstDns.kt b/composeApp/src/desktopMain/kotlin/com/nuvio/app/core/network/DesktopIPv4FirstDns.kt
-index 6f635d6..2d4fb19 100644
+index 6f635d6..3d7bbef 100644
 --- a/composeApp/src/desktopMain/kotlin/com/nuvio/app/core/network/DesktopIPv4FirstDns.kt
 +++ b/composeApp/src/desktopMain/kotlin/com/nuvio/app/core/network/DesktopIPv4FirstDns.kt
 @@ -1,10 +1,154 @@
@@ -4447,10 +4475,10 @@ index 5e0e33f..92e4807 100644
 +    actual fun onItemsChanged(items: List<DownloadItem>) {}
  }
 diff --git a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.desktop.kt b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.desktop.kt
-index 6ad6614..fb89581 100644
+index 6ad6614..fbb8eea 100644
 --- a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.desktop.kt
 +++ b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.desktop.kt
-@@ -1,110 +1,205 @@
+@@ -1,110 +1,214 @@
  package com.nuvio.app.features.downloads
  
 -import com.nuvio.app.core.storage.DesktopStorage
@@ -4512,6 +4540,15 @@ index 6ad6614..fb89581 100644
 +        job.cancel()
 +        activeCallGetter()?.cancel()
 +    }
++}
++
++private const val DEFAULT_DESKTOP_USER_AGENT =
++    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
++
++private fun withDefaultUserAgent(headers: Map<String, String>): Map<String, String> {
++    val hasUserAgent = headers.keys.any { it.equals("User-Agent", ignoreCase = true) }
++    if (hasUserAgent) return headers
++    return headers + ("User-Agent" to DEFAULT_DESKTOP_USER_AGENT)
 +}
 +
  internal actual object DownloadsPlatformDownloader {
@@ -4585,7 +4622,7 @@ index 6ad6614..fb89581 100644
 +
 +                fun buildRequest(rangeStart: Long?): Request {
 +                    val builder = Request.Builder().url(request.sourceUrl)
-+                    request.sourceHeaders.forEach { (k, v) ->
++                    withDefaultUserAgent(request.sourceHeaders).forEach { (k, v) ->
 +                        if (k.isNotBlank() && v.isNotBlank()) builder.header(k, v)
 +                    }
 +                    if (rangeStart != null && rangeStart > 0L) {
@@ -4634,6 +4671,16 @@ index 6ad6614..fb89581 100644
 +                    if (!appendToTemp && tempFile.exists()) {
 +                        tempFile.delete()
 +                    }
++
++                    val body = resp.body ?: error("Empty response body")
++                    val totalBytes = resolveTotalBytes(
++                        startingBytes = startingBytes,
++                        isPartialResume = isPartialResume,
++                        contentRangeHeader = resp.header("Content-Range"),
++                        contentLength = body.contentLength().takeIf { it > 0L },
++                    )
++                    var downloadedBytes = startingBytes
++                    onProgress(downloadedBytes, totalBytes)
  
 -                val totalBytes = resolveTotalBytes(
 -                    startingBytes = startingBytes,
@@ -4654,16 +4701,6 @@ index 6ad6614..fb89581 100644
 -                            output.write(buffer, 0, read)
 -                            downloadedBytes += read.toLong()
 -                            onProgress(downloadedBytes, totalBytes)
-+                    val body = resp.body ?: error("Empty response body")
-+                    val totalBytes = resolveTotalBytes(
-+                        startingBytes = startingBytes,
-+                        isPartialResume = isPartialResume,
-+                        contentRangeHeader = resp.header("Content-Range"),
-+                        contentLength = body.contentLength().takeIf { it > 0L },
-+                    )
-+                    var downloadedBytes = startingBytes
-+                    onProgress(downloadedBytes, totalBytes)
-+
 +                    body.byteStream().use { input ->
 +                        FileOutputStream(tempFile, appendToTemp).use { output ->
 +                            val buffer = ByteArray(16 * 1024)
@@ -4717,7 +4754,7 @@ index 6ad6614..fb89581 100644
      }
  
      actual fun removeFile(localFileUri: String?): Boolean {
-@@ -114,25 +209,39 @@ internal actual object DownloadsPlatformDownloader {
+@@ -114,25 +218,39 @@ internal actual object DownloadsPlatformDownloader {
      }
  
      actual fun removePartialFile(destinationFileName: String): Boolean {
@@ -4747,7 +4784,7 @@ index 6ad6614..fb89581 100644
 +    actual fun fetchUrlAsString(url: String, headers: Map<String, String>): String? {
 +        return try {
 +            val builder = Request.Builder().url(url)
-+            headers.forEach { (k, v) ->
++            withDefaultUserAgent(headers).forEach { (k, v) ->
 +                if (k.isNotBlank() && v.isNotBlank()) builder.header(k, v)
 +            }
 +            downloadHttpClient.newCall(builder.build()).execute().use { resp ->
@@ -4764,7 +4801,7 @@ index 6ad6614..fb89581 100644
          val desktop = runCatching { Desktop.getDesktop() }.getOrNull()
  
          if (desktop != null && Desktop.isDesktopSupported() && desktop.isSupported(Desktop.Action.OPEN)) {
-@@ -140,54 +249,272 @@ internal actual object DownloadsPlatformDownloader {
+@@ -140,54 +258,301 @@ internal actual object DownloadsPlatformDownloader {
              if (opened) return true
          }
  
@@ -4777,7 +4814,18 @@ index 6ad6614..fb89581 100644
 +        }
 +        return runCatching { ProcessBuilder(command).start() }.isSuccess
      }
-+}
++actual suspend fun probeIsHls(url: String, headers: Map<String, String>): Boolean = withContext(Dispatchers.IO) {
++        try {
++            val effectiveHeaders = withDefaultUserAgent(headers)
++            val headBuilder = Request.Builder().url(url).head()
++            effectiveHeaders.forEach { (k, v) ->
++                if (k.isNotBlank() && v.isNotBlank()) headBuilder.header(k, v)
++            }
++            val headResp = downloadHttpClient.newCall(headBuilder.build()).execute()
++            headResp.use { resp ->
++                val ct = resp.header("Content-Type")?.lowercase().orEmpty()
++                if (ct.contains("mpegurl") || ct.contains("m3u8")) return@withContext true
++            }
  
 -    private fun sendDownloadRequest(
 -        request: DownloadPlatformRequest,
@@ -4790,6 +4838,26 @@ index 6ad6614..fb89581 100644
 -        request.sourceHeaders.forEach { (key, value) ->
 -            if (key.isNotBlank() && value.isNotBlank()) {
 -                builder.header(key, value)
++            val getBuilder = Request.Builder().url(url).header("Range", "bytes=0-512")
++            effectiveHeaders.forEach { (k, v) ->
++                if (k.isNotBlank() && v.isNotBlank()) getBuilder.header(k, v)
++            }
++            val getResp = downloadHttpClient.newCall(getBuilder.build()).execute()
++            getResp.use { resp ->
++                val ct = resp.header("Content-Type")?.lowercase().orEmpty()
++                if (ct.contains("mpegurl") || ct.contains("m3u8")) return@withContext true
++                val preview = resp.body?.source()?.peek()?.readUtf8()?.trim().orEmpty()
++                preview.startsWith("#EXTM3U")
+             }
++        } catch (_: Exception) {
++            false
+         }
+-        if (rangeStart != null && rangeStart > 0L) {
+-            builder.header("Range", "bytes=$rangeStart-")
++    }
++}
++
++
 +private suspend fun performHlsDownloadDesktop(
 +    request: DownloadPlatformRequest,
 +    downloadsDir: File,
@@ -4850,7 +4918,7 @@ index 6ad6614..fb89581 100644
 +                    tempVideoFile.delete()
 +                    throw e
 +                }
-             }
++            }
 +
 +            val audioDeferreds = request.hlsAudioUrls.withIndex().map { (audioIndex, audioUrl) ->
 +                async {
@@ -4924,8 +4992,7 @@ index 6ad6614..fb89581 100644
 +            audioUris = audioDeferreds.mapNotNull { it.await() }
 +            subtitleUris = subtitleDeferreds.mapNotNull { it.await() }
          }
--        if (rangeStart != null && rangeStart > 0L) {
--            builder.header("Range", "bytes=$rangeStart-")
+-        return desktopDownloadHttpClient.send(builder.build(), HttpResponse.BodyHandlers.ofInputStream())
 +
 +        val companion = HlsCompanionOutcome(
 +            audioLocalFileUri = audioUris.firstOrNull(),
@@ -4940,9 +5007,15 @@ index 6ad6614..fb89581 100644
 +        throw e
 +    } catch (e: Throwable) {
 +        onFailure(e.message ?: "HLS download failed")
-+    }
-+}
-+
+     }
+ }
+ 
+-private fun openDirectoryWithPlatformCommand(directory: File): Boolean {
+-    val osName = System.getProperty("os.name").orEmpty().lowercase()
+-    val command = when {
+-        osName.contains("mac") -> listOf("open", directory.absolutePath)
+-        osName.contains("win") -> listOf("explorer", directory.absolutePath)
+-        else -> listOf("xdg-open", directory.absolutePath)
 +private suspend fun downloadSingleHlsTrackDesktop(
 +    downloadsDir: File,
 +    url: String,
@@ -4980,8 +5053,7 @@ index 6ad6614..fb89581 100644
 +        if (!tempFile.renameTo(finalFile)) {
 +            tempFile.copyTo(finalFile, overwrite = true)
 +            tempFile.delete()
-         }
--        return desktopDownloadHttpClient.send(builder.build(), HttpResponse.BodyHandlers.ofInputStream())
++        }
 +
 +        return finalFile.toURI().toString()
 +    } catch (e: CancellationException) {
@@ -4993,21 +5065,21 @@ index 6ad6614..fb89581 100644
 +        tempFile.delete()
 +        throw e
      }
+-    return runCatching { ProcessBuilder(command).start() }.isSuccess
  }
  
--private fun openDirectoryWithPlatformCommand(directory: File): Boolean {
--    val osName = System.getProperty("os.name").orEmpty().lowercase()
--    val command = when {
--        osName.contains("mac") -> listOf("open", directory.absolutePath)
--        osName.contains("win") -> listOf("explorer", directory.absolutePath)
--        else -> listOf("xdg-open", directory.absolutePath)
+-private class DesktopDownloadsTaskHandle(
+-    private val job: Job,
+-) : DownloadsTaskHandle {
+-    override fun cancel() {
+-        job.cancel()
 +private suspend fun desktopHttpGet(
 +    url: String,
 +    headers: Map<String, String>,
 +    range: HlsByteRange?,
 +): HlsHttpResult = withContext(Dispatchers.IO) {
 +    val builder = Request.Builder().url(url)
-+    headers.forEach { (k, v) ->
++    withDefaultUserAgent(headers).forEach { (k, v) ->
 +        if (k.isNotBlank() && v.isNotBlank()) builder.header(k, v)
 +    }
 +    if (range != null) {
@@ -5017,7 +5089,7 @@ index 6ad6614..fb89581 100644
 +            "bytes=${range.offset}-"
 +        }
 +        builder.header("Range", rangeHdr)
-+    }
+     }
 +
 +    val call = downloadHttpClient.newCall(builder.build())
 +    call.execute().use { resp ->
@@ -5026,15 +5098,9 @@ index 6ad6614..fb89581 100644
 +            body = resp.body?.bytes() ?: ByteArray(0),
 +            finalUrl = resp.request.url.toString(),
 +        )
-     }
--    return runCatching { ProcessBuilder(command).start() }.isSuccess
- }
- 
--private class DesktopDownloadsTaskHandle(
--    private val job: Job,
--) : DownloadsTaskHandle {
--    override fun cancel() {
--        job.cancel()
++    }
++}
++
 +private fun aes128CbcDecryptDesktop(data: ByteArray, key: ByteArray, iv: ByteArray): ByteArray {
 +    val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
 +    val keySpec = SecretKeySpec(key, "AES")
@@ -5050,14 +5116,14 @@ index 6ad6614..fb89581 100644
 +        clean
 +    } else {
 +        "$clean$ext"
-     }
- }
- 
++    }
++}
++
 +private fun hlsCompanionFileName(baseName: String, suffix: String, ext: String): String {
 +    val clean = baseName.removeSuffix(".part").substringBeforeLast('.')
 +    return "${clean}_$suffix.$ext"
-+}
-+
+ }
+ 
  private fun String.toLocalFileOrNull(): File? =
      runCatching {
 -        if (startsWith("file:")) {
