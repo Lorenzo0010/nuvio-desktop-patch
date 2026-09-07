@@ -4130,7 +4130,7 @@ index 0000000..d4daa92
 +
 +var globalNetworkSettingsRepository: NetworkSettingsRepository? = null
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsScreen.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsScreen.kt
-index 3bf2690..ae48f34 100644
+index 3bf2690..9ddb7f9 100644
 --- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsScreen.kt
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsScreen.kt
 @@ -93,7 +93,10 @@ import com.nuvio.app.core.ui.NuvioToastController
@@ -4152,26 +4152,21 @@ index 3bf2690..ae48f34 100644
      val downloadScope = rememberCoroutineScope()
      var preferredFilterApplied by remember(videoId) { mutableStateOf(false) }
      var autoPlayOverlayLogoLoadError by remember(logo) { mutableStateOf(false) }
-@@ -437,7 +441,14 @@ fun StreamsScreen(
+@@ -437,57 +441,57 @@ fun StreamsScreen(
                  }
              },
              onDownload = { stream ->
 -                if (DirectDebridPlaybackResolver.shouldResolveToPlayableStream(stream)) {
-+                val directUrl = stream.playableDirectUrl.orEmpty()
-+                val isHls = directUrl.isNotBlank() && (
-+                    HlsPlaylistParser.isHlsUrl(directUrl) ||
-+                    HlsPlaylistParser.isHlsStream(stream.streamType)
-+                )
-+                if (isHls) {
-+                    hlsDownloadTarget = stream
-+                } else if (DirectDebridPlaybackResolver.shouldResolveToPlayableStream(stream)) {
-                     downloadScope.launch {
+-                    downloadScope.launch {
++                downloadScope.launch {
++                    val effectiveStream = if (DirectDebridPlaybackResolver.shouldResolveToPlayableStream(stream)) {
                          val resolved = DirectDebridPlaybackResolver.resolveToPlayableStream(
                              stream = stream,
-@@ -446,22 +457,35 @@ fun StreamsScreen(
+                             season = seasonNumber,
+                             episode = episodeNumber,
                          )
                          when (resolved) {
-                             is DirectDebridPlayableResult.Success -> {
+-                            is DirectDebridPlayableResult.Success -> {
 -                                val result = DownloadsRepository.enqueueFromStream(
 -                                    contentType = type,
 -                                    videoId = videoId,
@@ -4186,53 +4181,72 @@ index 3bf2690..ae48f34 100644
 -                                    episodeTitle = episodeTitle,
 -                                    episodeThumbnail = episodeThumbnail,
 -                                    stream = resolved.stream,
-+                                val resolvedDirectUrl = resolved.stream.playableDirectUrl.orEmpty()
-+                                val resolvedIsHls = resolvedDirectUrl.isNotBlank() && (
-+                                    HlsPlaylistParser.isHlsUrl(resolvedDirectUrl) ||
-+                                    HlsPlaylistParser.isHlsStream(resolved.stream.streamType)
-                                 )
+-                                )
 -                                NuvioToastController.show(result.toastMessage())
-+                                if (resolvedIsHls) {
-+                                    hlsDownloadTarget = resolved.stream
-+                                } else {
-+                                    val result = DownloadsRepository.enqueueFromStream(
-+                                        contentType = type,
-+                                        videoId = videoId,
-+                                        parentMetaId = parentMetaId,
-+                                        parentMetaType = parentMetaType,
-+                                        title = title,
-+                                        logo = logo,
-+                                        poster = poster,
-+                                        background = background,
-+                                        seasonNumber = seasonNumber,
-+                                        episodeNumber = episodeNumber,
-+                                        episodeTitle = episodeTitle,
-+                                        episodeThumbnail = episodeThumbnail,
-+                                        stream = resolved.stream,
-+                                    )
-+                                    if (result == DownloadEnqueueResult.HlsNeedsSelection) {
-+                                        hlsDownloadTarget = resolved.stream
-+                                    } else {
-+                                        NuvioToastController.show(result.toastMessage())
-+                                    }
-+                                }
-                             }
+-                            }
++                            is DirectDebridPlayableResult.Success -> resolved.stream
                              else -> {
                                  val message = resolved.toastMessage()
-@@ -487,7 +511,11 @@ fun StreamsScreen(
-                         episodeThumbnail = episodeThumbnail,
-                         stream = stream,
+                                 if (message != null) {
+                                     NuvioToastController.show(message)
+                                 }
++                                return@launch
+                             }
+                         }
++                    } else {
++                        stream
+                     }
+-                } else {
+-                    val result = DownloadsRepository.enqueueFromStream(
+-                        contentType = type,
+-                        videoId = videoId,
+-                        parentMetaId = parentMetaId,
+-                        parentMetaType = parentMetaType,
+-                        title = title,
+-                        logo = logo,
+-                        poster = poster,
+-                        background = background,
+-                        seasonNumber = seasonNumber,
+-                        episodeNumber = episodeNumber,
+-                        episodeTitle = episodeTitle,
+-                        episodeThumbnail = episodeThumbnail,
+-                        stream = stream,
++
++                    val resolvedUrl = effectiveStream.playableDirectUrl.orEmpty()
++                    val isHlsStream = resolvedUrl.isNotBlank() && (
++                        HlsPlaylistParser.isHlsUrl(resolvedUrl) ||
++                        HlsPlaylistParser.isHlsStream(effectiveStream.streamType) ||
++                        DownloadsRepository.probeIsHls(effectiveStream)
                      )
 -                    NuvioToastController.show(result.toastMessage())
-+                    if (result == DownloadEnqueueResult.HlsNeedsSelection) {
-+                        hlsDownloadTarget = stream
++                    if (isHlsStream) {
++                        hlsDownloadTarget = effectiveStream
 +                    } else {
-+                        NuvioToastController.show(result.toastMessage())
++                        val result = DownloadsRepository.enqueueFromStream(
++                            contentType = type,
++                            videoId = videoId,
++                            parentMetaId = parentMetaId,
++                            parentMetaType = parentMetaType,
++                            title = title,
++                            logo = logo,
++                            poster = poster,
++                            background = background,
++                            seasonNumber = seasonNumber,
++                            episodeNumber = episodeNumber,
++                            episodeTitle = episodeTitle,
++                            episodeThumbnail = episodeThumbnail,
++                            stream = effectiveStream,
++                        )
++                        if (result == DownloadEnqueueResult.HlsNeedsSelection) {
++                            hlsDownloadTarget = effectiveStream
++                        } else {
++                            NuvioToastController.show(result.toastMessage())
++                        }
 +                    }
                  }
              },
              onOpen = { stream, openExternally ->
-@@ -499,6 +527,32 @@ fun StreamsScreen(
+@@ -499,6 +503,32 @@ fun StreamsScreen(
                  )
              },
          )
@@ -4475,13 +4489,20 @@ index 5e0e33f..92e4807 100644
 +    actual fun onItemsChanged(items: List<DownloadItem>) {}
  }
 diff --git a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.desktop.kt b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.desktop.kt
-index 6ad6614..fbb8eea 100644
+index 6ad6614..290406b 100644
 --- a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.desktop.kt
 +++ b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.desktop.kt
-@@ -1,110 +1,214 @@
+@@ -1,110 +1,235 @@
  package com.nuvio.app.features.downloads
  
 -import com.nuvio.app.core.storage.DesktopStorage
++import java.security.SecureRandom
++import java.security.cert.X509Certificate
++import javax.net.ssl.HostnameVerifier
++import javax.net.ssl.SSLContext
++import javax.net.ssl.TrustManager
++import javax.net.ssl.X509TrustManager
++
  import kotlinx.coroutines.CancellationException
  import kotlinx.coroutines.CoroutineScope
  import kotlinx.coroutines.Dispatchers
@@ -4518,7 +4539,21 @@ index 6ad6614..fbb8eea 100644
 +import javax.crypto.spec.IvParameterSpec
 +import javax.crypto.spec.SecretKeySpec
 +
++private val downloadTrustAllManager = object : X509TrustManager {
++    override fun checkClientTrusted(chain: Array<out X509Certificate>?, authType: String?) = Unit
++    override fun checkServerTrusted(chain: Array<out X509Certificate>?, authType: String?) = Unit
++    override fun getAcceptedIssuers(): Array<X509Certificate> = emptyArray()
++}
++
++private val downloadSslContext = SSLContext.getInstance("TLS").apply {
++    init(null, arrayOf<TrustManager>(downloadTrustAllManager), SecureRandom())
++}
++
++private val downloadHostnameVerifier = HostnameVerifier { _, _ -> true }
++
 +private val downloadHttpClient = OkHttpClient.Builder()
++    .sslSocketFactory(downloadSslContext.socketFactory, downloadTrustAllManager)
++    .hostnameVerifier(downloadHostnameVerifier)
 +    .dns(DesktopIPv4FirstDns())
 +    .connectionPool(ConnectionPool(16, 5, TimeUnit.MINUTES))
 +    .dispatcher(Dispatcher().apply {
@@ -4671,16 +4706,6 @@ index 6ad6614..fbb8eea 100644
 +                    if (!appendToTemp && tempFile.exists()) {
 +                        tempFile.delete()
 +                    }
-+
-+                    val body = resp.body ?: error("Empty response body")
-+                    val totalBytes = resolveTotalBytes(
-+                        startingBytes = startingBytes,
-+                        isPartialResume = isPartialResume,
-+                        contentRangeHeader = resp.header("Content-Range"),
-+                        contentLength = body.contentLength().takeIf { it > 0L },
-+                    )
-+                    var downloadedBytes = startingBytes
-+                    onProgress(downloadedBytes, totalBytes)
  
 -                val totalBytes = resolveTotalBytes(
 -                    startingBytes = startingBytes,
@@ -4701,6 +4726,16 @@ index 6ad6614..fbb8eea 100644
 -                            output.write(buffer, 0, read)
 -                            downloadedBytes += read.toLong()
 -                            onProgress(downloadedBytes, totalBytes)
++                    val body = resp.body ?: error("Empty response body")
++                    val totalBytes = resolveTotalBytes(
++                        startingBytes = startingBytes,
++                        isPartialResume = isPartialResume,
++                        contentRangeHeader = resp.header("Content-Range"),
++                        contentLength = body.contentLength().takeIf { it > 0L },
++                    )
++                    var downloadedBytes = startingBytes
++                    onProgress(downloadedBytes, totalBytes)
++
 +                    body.byteStream().use { input ->
 +                        FileOutputStream(tempFile, appendToTemp).use { output ->
 +                            val buffer = ByteArray(16 * 1024)
@@ -4754,7 +4789,7 @@ index 6ad6614..fbb8eea 100644
      }
  
      actual fun removeFile(localFileUri: String?): Boolean {
-@@ -114,25 +218,39 @@ internal actual object DownloadsPlatformDownloader {
+@@ -114,25 +239,39 @@ internal actual object DownloadsPlatformDownloader {
      }
  
      actual fun removePartialFile(destinationFileName: String): Boolean {
@@ -4801,7 +4836,7 @@ index 6ad6614..fbb8eea 100644
          val desktop = runCatching { Desktop.getDesktop() }.getOrNull()
  
          if (desktop != null && Desktop.isDesktopSupported() && desktop.isSupported(Desktop.Action.OPEN)) {
-@@ -140,54 +258,301 @@ internal actual object DownloadsPlatformDownloader {
+@@ -140,54 +279,301 @@ internal actual object DownloadsPlatformDownloader {
              if (opened) return true
          }
  
@@ -4813,7 +4848,7 @@ index 6ad6614..fbb8eea 100644
 +            else -> listOf("xdg-open", directory.absolutePath)
 +        }
 +        return runCatching { ProcessBuilder(command).start() }.isSuccess
-     }
++    }
 +actual suspend fun probeIsHls(url: String, headers: Map<String, String>): Boolean = withContext(Dispatchers.IO) {
 +        try {
 +            val effectiveHeaders = withDefaultUserAgent(headers)
@@ -4826,6 +4861,23 @@ index 6ad6614..fbb8eea 100644
 +                val ct = resp.header("Content-Type")?.lowercase().orEmpty()
 +                if (ct.contains("mpegurl") || ct.contains("m3u8")) return@withContext true
 +            }
++
++            val getBuilder = Request.Builder().url(url).header("Range", "bytes=0-512")
++            effectiveHeaders.forEach { (k, v) ->
++                if (k.isNotBlank() && v.isNotBlank()) getBuilder.header(k, v)
++            }
++            val getResp = downloadHttpClient.newCall(getBuilder.build()).execute()
++            getResp.use { resp ->
++                val ct = resp.header("Content-Type")?.lowercase().orEmpty()
++                if (ct.contains("mpegurl") || ct.contains("m3u8")) return@withContext true
++                val preview = resp.body?.source()?.peek()?.readUtf8()?.trim().orEmpty()
++                preview.startsWith("#EXTM3U")
++            }
++        } catch (_: Exception) {
++            false
++        }
+     }
++}
  
 -    private fun sendDownloadRequest(
 -        request: DownloadPlatformRequest,
@@ -4838,25 +4890,6 @@ index 6ad6614..fbb8eea 100644
 -        request.sourceHeaders.forEach { (key, value) ->
 -            if (key.isNotBlank() && value.isNotBlank()) {
 -                builder.header(key, value)
-+            val getBuilder = Request.Builder().url(url).header("Range", "bytes=0-512")
-+            effectiveHeaders.forEach { (k, v) ->
-+                if (k.isNotBlank() && v.isNotBlank()) getBuilder.header(k, v)
-+            }
-+            val getResp = downloadHttpClient.newCall(getBuilder.build()).execute()
-+            getResp.use { resp ->
-+                val ct = resp.header("Content-Type")?.lowercase().orEmpty()
-+                if (ct.contains("mpegurl") || ct.contains("m3u8")) return@withContext true
-+                val preview = resp.body?.source()?.peek()?.readUtf8()?.trim().orEmpty()
-+                preview.startsWith("#EXTM3U")
-             }
-+        } catch (_: Exception) {
-+            false
-         }
--        if (rangeStart != null && rangeStart > 0L) {
--            builder.header("Range", "bytes=$rangeStart-")
-+    }
-+}
-+
 +
 +private suspend fun performHlsDownloadDesktop(
 +    request: DownloadPlatformRequest,
@@ -4918,7 +4951,7 @@ index 6ad6614..fbb8eea 100644
 +                    tempVideoFile.delete()
 +                    throw e
 +                }
-+            }
+             }
 +
 +            val audioDeferreds = request.hlsAudioUrls.withIndex().map { (audioIndex, audioUrl) ->
 +                async {
@@ -4992,7 +5025,8 @@ index 6ad6614..fbb8eea 100644
 +            audioUris = audioDeferreds.mapNotNull { it.await() }
 +            subtitleUris = subtitleDeferreds.mapNotNull { it.await() }
          }
--        return desktopDownloadHttpClient.send(builder.build(), HttpResponse.BodyHandlers.ofInputStream())
+-        if (rangeStart != null && rangeStart > 0L) {
+-            builder.header("Range", "bytes=$rangeStart-")
 +
 +        val companion = HlsCompanionOutcome(
 +            audioLocalFileUri = audioUris.firstOrNull(),
@@ -5007,15 +5041,9 @@ index 6ad6614..fbb8eea 100644
 +        throw e
 +    } catch (e: Throwable) {
 +        onFailure(e.message ?: "HLS download failed")
-     }
- }
- 
--private fun openDirectoryWithPlatformCommand(directory: File): Boolean {
--    val osName = System.getProperty("os.name").orEmpty().lowercase()
--    val command = when {
--        osName.contains("mac") -> listOf("open", directory.absolutePath)
--        osName.contains("win") -> listOf("explorer", directory.absolutePath)
--        else -> listOf("xdg-open", directory.absolutePath)
++    }
++}
++
 +private suspend fun downloadSingleHlsTrackDesktop(
 +    downloadsDir: File,
 +    url: String,
@@ -5053,7 +5081,8 @@ index 6ad6614..fbb8eea 100644
 +        if (!tempFile.renameTo(finalFile)) {
 +            tempFile.copyTo(finalFile, overwrite = true)
 +            tempFile.delete()
-+        }
+         }
+-        return desktopDownloadHttpClient.send(builder.build(), HttpResponse.BodyHandlers.ofInputStream())
 +
 +        return finalFile.toURI().toString()
 +    } catch (e: CancellationException) {
@@ -5065,14 +5094,14 @@ index 6ad6614..fbb8eea 100644
 +        tempFile.delete()
 +        throw e
      }
--    return runCatching { ProcessBuilder(command).start() }.isSuccess
  }
  
--private class DesktopDownloadsTaskHandle(
--    private val job: Job,
--) : DownloadsTaskHandle {
--    override fun cancel() {
--        job.cancel()
+-private fun openDirectoryWithPlatformCommand(directory: File): Boolean {
+-    val osName = System.getProperty("os.name").orEmpty().lowercase()
+-    val command = when {
+-        osName.contains("mac") -> listOf("open", directory.absolutePath)
+-        osName.contains("win") -> listOf("explorer", directory.absolutePath)
+-        else -> listOf("xdg-open", directory.absolutePath)
 +private suspend fun desktopHttpGet(
 +    url: String,
 +    headers: Map<String, String>,
@@ -5089,7 +5118,7 @@ index 6ad6614..fbb8eea 100644
 +            "bytes=${range.offset}-"
 +        }
 +        builder.header("Range", rangeHdr)
-     }
++    }
 +
 +    val call = downloadHttpClient.newCall(builder.build())
 +    call.execute().use { resp ->
@@ -5098,9 +5127,15 @@ index 6ad6614..fbb8eea 100644
 +            body = resp.body?.bytes() ?: ByteArray(0),
 +            finalUrl = resp.request.url.toString(),
 +        )
-+    }
-+}
-+
+     }
+-    return runCatching { ProcessBuilder(command).start() }.isSuccess
+ }
+ 
+-private class DesktopDownloadsTaskHandle(
+-    private val job: Job,
+-) : DownloadsTaskHandle {
+-    override fun cancel() {
+-        job.cancel()
 +private fun aes128CbcDecryptDesktop(data: ByteArray, key: ByteArray, iv: ByteArray): ByteArray {
 +    val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
 +    val keySpec = SecretKeySpec(key, "AES")
@@ -5116,14 +5151,14 @@ index 6ad6614..fbb8eea 100644
 +        clean
 +    } else {
 +        "$clean$ext"
-+    }
-+}
-+
+     }
+ }
+ 
 +private fun hlsCompanionFileName(baseName: String, suffix: String, ext: String): String {
 +    val clean = baseName.removeSuffix(".part").substringBeforeLast('.')
 +    return "${clean}_$suffix.$ext"
- }
- 
++}
++
  private fun String.toLocalFileOrNull(): File? =
      runCatching {
 -        if (startsWith("file:")) {
