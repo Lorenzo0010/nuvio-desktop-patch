@@ -71,7 +71,7 @@ Le patch si trovano in `patches/` e vanno applicate in ordine numerico:
 4. `patches/04-hls-downloads.patch` (Download offline e streaming HLS multitraccia, decrittazione hardware AES-128, picker cartella e gestione download)
 5. `patches/05-desktop-plugins-fix.patch` (Runtime plugin QuickJS per desktop e correzioni host bindings)
 6. `patches/06-stream-prefetch.patch` (Menu impostazioni Patches Plus e precaricamento sorgenti streaming in background su MetaDetailsScreen)
-7. `patches/07-version-bump.patch` (Incremento versione desktop a `0.1.22.5-alpha`)
+7. `patches/07-version-bump.patch` (Incremento versione desktop a `0.1.22.6-alpha`)
 
 Esegui lo script di test:
 - PowerShell: `powershell -ExecutionPolicy Bypass -File .\scripts\test-patch-apply.ps1`
@@ -100,3 +100,4 @@ Esegui lo script di test:
    - Aggiorna `.last_built_upstream_sha`
    - Esegui commit e push sul repository `Lorenzo0010/nuvio-desktop-patch`
    - Pubblica la release GitHub: `gh release create <tag> <file_artefatto> --title "Nuvio Plus Desktop <versione>"`
+
