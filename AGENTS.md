@@ -2,6 +2,12 @@
 
 Questo documento definisce il protocollo standard e obbligatorio che l'agente AI (Antigravity) deve seguire ogni volta che l'utente richiede di **"aggiornare la versione di Nuvio Desktop"** o di verificare/applicare le patch all'ultima versione upstream di Nuvio Desktop.
 
+## ⚡ Token-Saver Mode (alta efficienza token, obbligatorio)
+1. **Lettura mirata:** mai scansionare intero workspace o caricare directory intere; leggere solo file/range strettamente necessari. Ignorare cache, build, log, dipendenze (es. `node_modules`, `venv`, `dist`, `target`) e binari.
+2. **Editing compatto:** applicare solo diff/patch mirate o funzione/classe aggiornata; non ristampare mai file interi o righe invariate per contesto.
+3. **Risposte concise:** minimo preambolo/spiegazione, solo cosa cambiato e perché in max 2-3 frasi; niente boilerplate discorsivo.
+4. **Isolamento task:** ogni richiesta è operazione puntuale; se contesto precedente non serve, suggerire riavvio chat per liberare memoria.
+
 ---
 
 ## 🎯 Obiettivo del Flusso
