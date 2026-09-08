@@ -51,7 +51,7 @@ index 93e6e0e5..a1292203 100644
      }
  }
 diff --git a/composeApp/src/desktopTest/kotlin/com/nuvio/app/features/plugins/PluginRuntimeDesktopTest.kt b/composeApp/src/desktopTest/kotlin/com/nuvio/app/features/plugins/PluginRuntimeDesktopTest.kt
-index 01dfe7e9..6fa1f648 100644
+index d8ff553c..13b9c549 100644
 --- a/composeApp/src/desktopTest/kotlin/com/nuvio/app/features/plugins/PluginRuntimeDesktopTest.kt
 +++ b/composeApp/src/desktopTest/kotlin/com/nuvio/app/features/plugins/PluginRuntimeDesktopTest.kt
 @@ -4,6 +4,7 @@ import com.nuvio.app.features.plugins.runtime.PluginRuntime
@@ -62,10 +62,36 @@ index 01dfe7e9..6fa1f648 100644
  
  class PluginRuntimeDesktopTest {
      @Test
-@@ -58,4 +59,261 @@ class PluginRuntimeDesktopTest {
-         assertEquals(1, results.size)
-         assertEquals("Fetch stream ok", results.single().title)
+@@ -32,4 +33,287 @@ class PluginRuntimeDesktopTest {
+         assertEquals("1080p", results.single().quality)
+         assertEquals("Desktop Test", results.single().provider)
      }
++
++    @Test
++    fun `desktop runtime executes fetch in plugin`() = runBlocking {
++        val results = PluginRuntime.executePlugin(
++            code = """
++                module.exports.getStreams = async function(tmdbId, mediaType) {
++                    const res = await fetch("https://httpbin.org/get");
++                    const data = await res.json();
++                    return [{
++                        title: "Fetch stream " + (data ? "ok" : "fail"),
++                        url: "https://example.test/stream.m3u8",
++                        quality: "1080p",
++                        provider: "Fetch Test"
++                    }];
++                };
++            """.trimIndent(),
++            tmdbId = "603",
++            mediaType = "movie",
++            season = null,
++            episode = null,
++            scraperId = "fetch-runtime-test",
++        )
++
++        assertEquals(1, results.size)
++        assertEquals("Fetch stream ok", results.single().title)
++    }
 +
 +    @Test
 +    fun `desktop runtime handles emojis and unicode in stream results without truncation`() = runBlocking {
@@ -324,8 +350,40 @@ index 01dfe7e9..6fa1f648 100644
 +        }
 +    }
  }
+diff --git a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/PluginRepository.kt b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/PluginRepository.kt
+index 8b414962..8cc4255e 100644
+--- a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/PluginRepository.kt
++++ b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/PluginRepository.kt
+@@ -345,12 +345,25 @@ actual object PluginRepository {
+         val scraper = _uiState.value.scrapers.find { it.id == scraperId }
+             ?: return Result.failure(IllegalArgumentException(getString(Res.string.plugins_error_provider_not_found)))
+ 
+-        val mediaType = if (scraper.supportsType("movie")) "movie" else "tv"
++        val isAnime = scraper.name.contains("anime", ignoreCase = true) ||
++            scraper.id.contains("anime", ignoreCase = true) ||
++            scraper.supportedTypes.any { it.equals("anime", ignoreCase = true) }
++        val isTvOnly = !scraper.supportsType("movie") && scraper.supportsType("tv")
++
++        val tmdbId = when {
++            isAnime -> "1429"
++            isTvOnly -> "1396"
++            else -> "603"
++        }
++        val mediaType = when {
++            isAnime || isTvOnly -> "tv"
++            else -> "movie"
++        }
+         val season = if (mediaType == "tv") 1 else null
+         val episode = if (mediaType == "tv") 1 else null
+         return executeScraper(
+             scraper = scraper,
+-            tmdbId = "603",
++            tmdbId = tmdbId,
+             mediaType = mediaType,
+             season = season,
+             episode = episode,
 diff --git a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/PluginRuntime.kt b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/PluginRuntime.kt
-index a0f19002..f0a50ebe 100644
+index a0f19002..6573791f 100644
 --- a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/PluginRuntime.kt
 +++ b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/PluginRuntime.kt
 @@ -1,5 +1,6 @@
@@ -478,7 +536,7 @@ index a0f19002..f0a50ebe 100644
      }
  
 diff --git a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/host/HostFunctions.kt b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/host/HostFunctions.kt
-index 552fbac6..f4fe312f 100644
+index 552fbac6..bd901e55 100644
 --- a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/host/HostFunctions.kt
 +++ b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/host/HostFunctions.kt
 @@ -2,8 +2,10 @@ package com.nuvio.app.features.plugins.runtime.host
@@ -509,7 +567,7 @@ index 552fbac6..f4fe312f 100644
      }
  }
 diff --git a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/js/JsBindings.kt b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/js/JsBindings.kt
-index f8d9d7e7..df73d6fa 100644
+index f8d9d7e7..e39a58f2 100644
 --- a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/js/JsBindings.kt
 +++ b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/runtime/js/JsBindings.kt
 @@ -9,6 +9,8 @@ internal object JsBindings {
@@ -1002,35 +1060,3 @@ index 704da56c..9ad97f8d 100644
          }
      }
  }
-diff --git a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/PluginRepository.kt b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/PluginRepository.kt
-index 8b414962..8cc4255e 100644
---- a/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/PluginRepository.kt
-+++ b/composeApp/src/fullCommonMain/kotlin/com/nuvio/app/features/plugins/PluginRepository.kt
-@@ -345,12 +345,25 @@ actual object PluginRepository {
-         val scraper = _uiState.value.scrapers.find { it.id == scraperId }
-             ?: return Result.failure(IllegalArgumentException(getString(Res.string.plugins_error_provider_not_found)))
- 
--        val mediaType = if (scraper.supportsType("movie")) "movie" else "tv"
-+        val isAnime = scraper.name.contains("anime", ignoreCase = true) ||
-+            scraper.id.contains("anime", ignoreCase = true) ||
-+            scraper.supportedTypes.any { it.equals("anime", ignoreCase = true) }
-+        val isTvOnly = !scraper.supportsType("movie") && scraper.supportsType("tv")
-+
-+        val tmdbId = when {
-+            isAnime -> "1429"
-+            isTvOnly -> "1396"
-+            else -> "603"
-+        }
-+        val mediaType = when {
-+            isAnime || isTvOnly -> "tv"
-+            else -> "movie"
-+        }
-         val season = if (mediaType == "tv") 1 else null
-         val episode = if (mediaType == "tv") 1 else null
-         return executeScraper(
-             scraper = scraper,
--            tmdbId = "603",
-+            tmdbId = tmdbId,
-             mediaType = mediaType,
-             season = season,
-             episode = episode,

@@ -1,6 +1,6 @@
 diff --git a/composeApp/src/androidMain/kotlin/com/nuvio/app/core/logging/InAppLogger.android.kt b/composeApp/src/androidMain/kotlin/com/nuvio/app/core/logging/InAppLogger.android.kt
 new file mode 100644
-index 0000000..aff23eb
+index 00000000..aff23ebc
 --- /dev/null
 +++ b/composeApp/src/androidMain/kotlin/com/nuvio/app/core/logging/InAppLogger.android.kt
 @@ -0,0 +1,8 @@
@@ -14,7 +14,7 @@ index 0000000..aff23eb
 +    SimpleDateFormat("HH:mm:ss", Locale.US).format(Date())
 diff --git a/composeApp/src/androidMain/kotlin/com/nuvio/app/core/share/SharePlatform.android.kt b/composeApp/src/androidMain/kotlin/com/nuvio/app/core/share/SharePlatform.android.kt
 new file mode 100644
-index 0000000..8838159
+index 00000000..88381599
 --- /dev/null
 +++ b/composeApp/src/androidMain/kotlin/com/nuvio/app/core/share/SharePlatform.android.kt
 @@ -0,0 +1,49 @@
@@ -69,7 +69,7 @@ index 0000000..8838159
 +}
 diff --git a/composeApp/src/androidMain/kotlin/com/nuvio/app/features/downloads/DownloadFileSaver.android.kt b/composeApp/src/androidMain/kotlin/com/nuvio/app/features/downloads/DownloadFileSaver.android.kt
 new file mode 100644
-index 0000000..528f4e1
+index 00000000..528f4e1e
 --- /dev/null
 +++ b/composeApp/src/androidMain/kotlin/com/nuvio/app/features/downloads/DownloadFileSaver.android.kt
 @@ -0,0 +1,67 @@
@@ -141,7 +141,7 @@ index 0000000..528f4e1
 +    }
 +}
 diff --git a/composeApp/src/androidMain/kotlin/com/nuvio/app/features/downloads/DownloadsLiveStatusPlatform.android.kt b/composeApp/src/androidMain/kotlin/com/nuvio/app/features/downloads/DownloadsLiveStatusPlatform.android.kt
-index b4bed54..8927773 100644
+index b4bed543..89277739 100644
 --- a/composeApp/src/androidMain/kotlin/com/nuvio/app/features/downloads/DownloadsLiveStatusPlatform.android.kt
 +++ b/composeApp/src/androidMain/kotlin/com/nuvio/app/features/downloads/DownloadsLiveStatusPlatform.android.kt
 @@ -12,7 +12,6 @@ import androidx.core.app.NotificationCompat
@@ -294,7 +294,7 @@ index b4bed54..8927773 100644
      )
  }
 diff --git a/composeApp/src/androidMain/kotlin/com/nuvio/app/features/downloads/DownloadsStorage.android.kt b/composeApp/src/androidMain/kotlin/com/nuvio/app/features/downloads/DownloadsStorage.android.kt
-index 01ad328..fcd0f5d 100644
+index 01ad3280..fcd0f5d5 100644
 --- a/composeApp/src/androidMain/kotlin/com/nuvio/app/features/downloads/DownloadsStorage.android.kt
 +++ b/composeApp/src/androidMain/kotlin/com/nuvio/app/features/downloads/DownloadsStorage.android.kt
 @@ -7,6 +7,7 @@ import com.nuvio.app.core.storage.ProfileScopedKey
@@ -328,7 +328,7 @@ index 01ad328..fcd0f5d 100644
  }
 diff --git a/composeApp/src/androidMain/kotlin/com/nuvio/app/features/settings/DownloadsSettingsPage.android.kt b/composeApp/src/androidMain/kotlin/com/nuvio/app/features/settings/DownloadsSettingsPage.android.kt
 new file mode 100644
-index 0000000..515bac4
+index 00000000..515bac48
 --- /dev/null
 +++ b/composeApp/src/androidMain/kotlin/com/nuvio/app/features/settings/DownloadsSettingsPage.android.kt
 @@ -0,0 +1,37 @@
@@ -370,7 +370,7 @@ index 0000000..515bac4
 +    return androidUri.path?.substringAfterLast(':') ?: uri
 +}
 diff --git a/composeApp/src/commonMain/composeResources/values-it/strings.xml b/composeApp/src/commonMain/composeResources/values-it/strings.xml
-index 019a3d5..78e1f0f 100644
+index 019a3d52..78e1f0fb 100644
 --- a/composeApp/src/commonMain/composeResources/values-it/strings.xml
 +++ b/composeApp/src/commonMain/composeResources/values-it/strings.xml
 @@ -1,3 +1,4 @@
@@ -416,7 +416,7 @@ index 019a3d5..78e1f0f 100644
 +</resources>
 \ No newline at end of file
 diff --git a/composeApp/src/commonMain/composeResources/values/strings.xml b/composeApp/src/commonMain/composeResources/values/strings.xml
-index fab3989..909817b 100644
+index fab39895..909817b9 100644
 --- a/composeApp/src/commonMain/composeResources/values/strings.xml
 +++ b/composeApp/src/commonMain/composeResources/values/strings.xml
 @@ -1,3 +1,4 @@
@@ -788,7 +788,7 @@ index fab3989..909817b 100644
 +</resources>
 \ No newline at end of file
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/AppScreenTab.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/AppScreenTab.kt
-index b0e56fb..ae91c56 100644
+index b0e56fb0..ae91c561 100644
 --- a/composeApp/src/commonMain/kotlin/com/nuvio/app/AppScreenTab.kt
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/AppScreenTab.kt
 @@ -6,6 +6,7 @@ enum class AppScreenTab {
@@ -808,7 +808,7 @@ index b0e56fb..ae91c56 100644
      AppScreenTab.Settings -> NativeNavigationTab.Settings
  }
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/AppShellComponents.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/AppShellComponents.kt
-index 4c078a8..007a4aa 100644
+index 4c078a87..007a4aae 100644
 --- a/composeApp/src/commonMain/kotlin/com/nuvio/app/AppShellComponents.kt
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/AppShellComponents.kt
 @@ -74,7 +74,11 @@ import com.nuvio.app.features.home.HomeCatalogSection
@@ -903,7 +903,7 @@ index 4c078a8..007a4aa 100644
                      label = stringResource(Res.string.compose_nav_library),
                      selected = selectedTab == AppScreenTab.Library,
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/MainAppContent.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/MainAppContent.kt
-index f3a83ed..e78016a 100644
+index f3a83ed8..e78016a6 100644
 --- a/composeApp/src/commonMain/kotlin/com/nuvio/app/MainAppContent.kt
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/MainAppContent.kt
 @@ -98,6 +98,8 @@ import com.nuvio.app.features.downloads.DownloadItem
@@ -983,7 +983,7 @@ index f3a83ed..e78016a 100644
                          onBack = {
                              if (selectedTab != AppScreenTab.Home) {
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/MainTabsDestination.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/MainTabsDestination.kt
-index ff9824d..38d6eae 100644
+index ff9824d1..38d6eae6 100644
 --- a/composeApp/src/commonMain/kotlin/com/nuvio/app/MainTabsDestination.kt
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/MainTabsDestination.kt
 @@ -45,11 +45,13 @@ import com.nuvio.app.features.profiles.NuvioProfile
@@ -1031,7 +1031,7 @@ index ff9824d..38d6eae 100644
                              onClick = { onTabSelected(AppScreenTab.Library) },
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/core/logging/InAppLogWriter.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/logging/InAppLogWriter.kt
 new file mode 100644
-index 0000000..6cf9917
+index 00000000..6cf99178
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/logging/InAppLogWriter.kt
 @@ -0,0 +1,28 @@
@@ -1065,7 +1065,7 @@ index 0000000..6cf9917
 +}
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/core/logging/InAppLogger.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/logging/InAppLogger.kt
 new file mode 100644
-index 0000000..e4cba78
+index 00000000..e4cba788
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/logging/InAppLogger.kt
 @@ -0,0 +1,168 @@
@@ -1239,7 +1239,7 @@ index 0000000..e4cba78
 +}
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/core/share/SharePlatform.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/share/SharePlatform.kt
 new file mode 100644
-index 0000000..28ee667
+index 00000000..28ee667d
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/share/SharePlatform.kt
 @@ -0,0 +1,5 @@
@@ -1249,7 +1249,7 @@ index 0000000..28ee667
 +    fun shareFile(filePath: String, title: String, mimeType: String)
 +}
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/core/ui/BottomSheet.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/ui/BottomSheet.kt
-index 87d6d7f..a8ee9f9 100644
+index 87d6d7fc..a8ee9f98 100644
 --- a/composeApp/src/commonMain/kotlin/com/nuvio/app/core/ui/BottomSheet.kt
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/ui/BottomSheet.kt
 @@ -139,3 +139,14 @@ private fun NuvioBottomSheetDragHandle() {
@@ -1268,7 +1268,7 @@ index 87d6d7f..a8ee9f9 100644
 +    )
 +}
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/core/ui/DropdownChip.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/ui/DropdownChip.kt
-index 914e3bb..c28280a 100644
+index 914e3bb8..c28280a4 100644
 --- a/composeApp/src/commonMain/kotlin/com/nuvio/app/core/ui/DropdownChip.kt
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/ui/DropdownChip.kt
 @@ -3,22 +3,21 @@ package com.nuvio.app.core.ui
@@ -1548,7 +1548,7 @@ index 914e3bb..c28280a 100644
  @OptIn(ExperimentalMaterial3Api::class)
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/core/ui/EpisodeCodeFormat.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/ui/EpisodeCodeFormat.kt
 new file mode 100644
-index 0000000..b271ad4
+index 00000000..b271ad42
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/core/ui/EpisodeCodeFormat.kt
 @@ -0,0 +1,28 @@
@@ -1580,9 +1580,896 @@ index 0000000..b271ad4
 +fun rememberEpisodeCodeFormat(): EpisodeCodeFormat {
 +    return EpisodeCodeFormat.S01E01
 +}
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/AutoStreamDownloader.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/AutoStreamDownloader.kt
+new file mode 100644
+index 00000000..904980d9
+--- /dev/null
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/AutoStreamDownloader.kt
+@@ -0,0 +1,881 @@
++package com.nuvio.app.features.downloads
++
++import co.touchlab.kermit.Logger
++import com.nuvio.app.core.logging.InAppLogger
++import com.nuvio.app.core.ui.NuvioToastController
++import com.nuvio.app.features.addons.AddonRepository
++import com.nuvio.app.features.debrid.DirectDebridPlayableResult
++import com.nuvio.app.features.debrid.DirectDebridPlaybackResolver
++import com.nuvio.app.features.details.MetaDetails
++import com.nuvio.app.features.details.MetaVideo
++import com.nuvio.app.features.player.PlayerStreamsRepository
++import com.nuvio.app.features.streams.AddonStreamGroup
++import com.nuvio.app.features.streams.StreamDebridCacheState
++import com.nuvio.app.features.streams.StreamItem
++import com.nuvio.app.features.watchprogress.buildPlaybackVideoId
++import kotlinx.coroutines.CoroutineScope
++import kotlinx.coroutines.Dispatchers
++import kotlinx.coroutines.SupervisorJob
++import kotlinx.coroutines.delay
++import kotlinx.coroutines.flow.MutableStateFlow
++import kotlinx.coroutines.flow.StateFlow
++import kotlinx.coroutines.flow.asStateFlow
++import kotlinx.coroutines.flow.update
++import kotlinx.coroutines.launch
++
++private sealed interface StartAttemptResult {
++    data class Success(val item: DownloadItem) : StartAttemptResult
++    data class Failed(val reason: String) : StartAttemptResult
++}
++
++object AutoStreamDownloader {
++    private val log = Logger.withTag("AutoDownloader")
++    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
++    private val _activeSearches = MutableStateFlow<Set<String>>(emptySet())
++    val activeSearches: StateFlow<Set<String>> = _activeSearches.asStateFlow()
++
++    fun isSearching(key: String): Boolean = key in _activeSearches.value
++
++    private fun isPluginGroup(group: AddonStreamGroup): Boolean =
++        group.addonId.startsWith("plugin:") || group.addonId.startsWith("plugin-repo:")
++
++    private fun isAddonGroup(group: AddonStreamGroup): Boolean =
++        !isPluginGroup(group)
++
++    private fun isPluginStream(stream: StreamItem): Boolean =
++        stream.addonId.startsWith("plugin:") ||
++        stream.addonId.startsWith("plugin-repo:") ||
++        stream.sourceName != null
++
++    private fun isAddonStream(stream: StreamItem): Boolean =
++        !isPluginStream(stream)
++
++    private fun matchesRepository(stream: StreamItem, preferredRepo: String?): Boolean {
++        if (preferredRepo.isNullOrBlank()) return true
++        val target = preferredRepo.trim().lowercase()
++        val addonId = stream.addonId.lowercase()
++        val addonName = stream.addonName?.lowercase().orEmpty()
++        val sourceName = stream.sourceName?.lowercase().orEmpty()
++        return addonId == target ||
++            addonId == "plugin-repo:$target" ||
++            addonId.contains(target) ||
++            addonName == target ||
++            sourceName == target
++    }
++
++    private fun matchesAddon(addonName: String?, addonId: String?, preferredAddon: String?): Boolean {
++        if (preferredAddon.isNullOrBlank()) return true
++        val target = preferredAddon.trim().lowercase()
++        val aName = addonName?.lowercase()?.trim().orEmpty()
++        val aId = addonId?.lowercase()?.trim().orEmpty()
++
++        // 1. Corrispondenza diretta o per contenimento su addonName o addonId
++        if (aName == target || aName.contains(target) || target.contains(aName)) return true
++        if (aId == target || aId.contains(target) || target.contains(aId)) return true
++
++        // 2. Controllo per Stremio instance id "addon:<manifestId>:<manifestUrl>"
++        if (aId.startsWith("addon:")) {
++            val parts = aId.removePrefix("addon:").split(":", limit = 2)
++            val manifestId = parts.getOrNull(0)?.lowercase().orEmpty()
++            val manifestUrl = parts.getOrNull(1)?.lowercase().orEmpty()
++            if (manifestId.isNotBlank() && (manifestId == target || target.contains(manifestId) || manifestId.contains(target))) return true
++            if (manifestUrl.isNotBlank() && (manifestUrl == target || manifestUrl.contains(target) || target.contains(manifestUrl))) return true
++        }
++
++        // 3. Risoluzione tramite AddonRepository per sicurezza totale
++        val matchingAddon = try {
++            AddonRepository.uiState.value.addons.firstOrNull { addon ->
++                val mId = addon.manifest?.id?.lowercase().orEmpty()
++                val mUrl = addon.manifestUrl.lowercase()
++                val dTitle = addon.displayTitle.lowercase()
++                val mName = addon.manifest?.name?.lowercase().orEmpty()
++                target == mId || target == mUrl || target == dTitle || target == mName ||
++                    (mId.isNotBlank() && target.contains(mId)) ||
++                    (mUrl.isNotBlank() && target.contains(mUrl))
++            }
++        } catch (_: Throwable) {
++            null
++        }
++
++        if (matchingAddon != null) {
++            val mId = matchingAddon.manifest?.id?.lowercase().orEmpty()
++            val mUrl = matchingAddon.manifestUrl.lowercase()
++            val dTitle = matchingAddon.displayTitle.lowercase()
++            val mName = matchingAddon.manifest?.name?.lowercase().orEmpty()
++
++            if (aName == dTitle || aName == mName || aName.contains(dTitle) || dTitle.contains(aName)) return true
++            if (mUrl.isNotBlank() && aId.contains(mUrl)) return true
++            if (mId.isNotBlank() && (aId.contains(":$mId:") || aId.contains("addon:$mId") || aId == mId)) return true
++        }
++
++        return false
++    }
++
++    private fun matchesAddon(stream: StreamItem, preferredAddon: String?): Boolean {
++        return matchesAddon(stream.addonName, stream.addonId, preferredAddon)
++    }
++
++    private fun matchesAddonGroup(group: AddonStreamGroup, preferredAddon: String?): Boolean {
++        if (preferredAddon.isNullOrBlank()) return true
++        if (matchesAddon(group.addonName, group.addonId, preferredAddon)) return true
++        if (group.streams.any { matchesAddon(it, preferredAddon) }) return true
++        return false
++    }
++
++    /**
++     * Identifica se uno stream è un torrent in cache (Debrid Cached) o stream diretto Debrid.
++     * Include:
++     * - Torrent verificati in cache con status CACHED
++     * - Flussi debrid diretti (clientResolve.isDirectDebridCandidate)
++     * - Flussi pre-risolti da addon (es. AIOStreams / Torrentio con RD+ o lightning bolt ⚡)
++     */
++    private fun isCachedTorrentStream(stream: StreamItem): Boolean {
++        if (stream.debridCacheStatus?.state == StreamDebridCacheState.CACHED) return true
++        if (stream.isCachedDebridTorrentStream) return true
++        if (stream.isDirectDebridStream) return true
++
++        val textToSearch = listOfNotNull(
++            stream.name,
++            stream.title,
++            stream.description,
++            stream.addonName,
++        ).joinToString(" ")
++
++        if (textToSearch.contains("RD+", ignoreCase = true) ||
++            textToSearch.contains("[RD+]", ignoreCase = true) ||
++            textToSearch.contains("(RD+)", ignoreCase = true) ||
++            textToSearch.contains("AD+", ignoreCase = true) ||
++            textToSearch.contains("[AD+]", ignoreCase = true) ||
++            textToSearch.contains("PM+", ignoreCase = true) ||
++            textToSearch.contains("[PM+]", ignoreCase = true) ||
++            textToSearch.contains("TB+", ignoreCase = true) ||
++            textToSearch.contains("[TB+]", ignoreCase = true) ||
++            textToSearch.contains("⚡") ||
++            textToSearch.contains("RealDebrid Instant", ignoreCase = true) ||
++            textToSearch.contains("Debrid: cached", ignoreCase = true)
++        ) {
++            return true
++        }
++
++        val url = stream.playableDirectUrl.orEmpty().ifBlank { stream.url.orEmpty() }
++        if (url.contains("real-debrid.com", ignoreCase = true) ||
++            url.contains("alldebrid.com", ignoreCase = true) ||
++            url.contains("premiumize.me", ignoreCase = true) ||
++            url.contains("torbox.app", ignoreCase = true) ||
++            url.contains("debrid-link.fr", ignoreCase = true)
++        ) {
++            return true
++        }
++
++        return false
++    }
++
++    /**
++     * Verifica se uno stream torrent è attualmente in fase di verifica cache Debrid.
++     */
++    private fun isCheckingTorrentStream(stream: StreamItem): Boolean {
++        if (stream.debridCacheStatus?.state == StreamDebridCacheState.CHECKING) return true
++        if (stream.isTorrentStream && stream.debridCacheStatus?.state == null && stream.needsLocalDebridResolve) {
++            return true
++        }
++        return false
++    }
++
++    /**
++     * Identifica se uno stream da addon è un flusso HTTP diretto (hoster / DDL da addon come AIOStreams).
++     */
++    private fun isAddonHttpStream(stream: StreamItem): Boolean {
++        if (!isAddonStream(stream)) return false
++        if (isCachedTorrentStream(stream)) return false
++        val url = stream.playableDirectUrl.orEmpty().ifBlank { stream.url.orEmpty() }
++        return url.startsWith("http://", ignoreCase = true) || url.startsWith("https://", ignoreCase = true)
++    }
++
++    /**
++     * Ordine di priorità per il download automatico:
++     * Tier 0: Torrent Cached (RealDebrid / Debrid-cached torrents dagli addon)
++     * Tier 1: Addon HTTP (flussi HTTP / DDL dagli addon come AIOStreams)
++     * Tier 2: Plugin Stream (CloudStream scrapers)
++     * Tier 3: Altro (es. torrent non in cache, P2P)
++     */
++    private fun streamPriorityRank(stream: StreamItem): Int {
++        return when {
++            isCachedTorrentStream(stream) && isAddonStream(stream) -> 0
++            isAddonHttpStream(stream) -> 1
++            isPluginStream(stream) -> 2
++            else -> 3
++        }
++    }
++
++    private fun streamPriorityLabel(stream: StreamItem): String {
++        return when (streamPriorityRank(stream)) {
++            0 -> "Torrent Cached"
++            1 -> "Addon HTTP"
++            2 -> "Plugin"
++            else -> "Altro"
++        }
++    }
++
++    private suspend fun resolveEffectiveStream(
++        candidate: StreamItem,
++        seasonNumber: Int?,
++        episodeNumber: Int?,
++    ): StreamItem? {
++        if (DirectDebridPlaybackResolver.shouldResolveToPlayableStream(candidate)) {
++            val resolved = DirectDebridPlaybackResolver.resolveToPlayableStream(
++                stream = candidate,
++                season = seasonNumber,
++                episode = episodeNumber,
++            )
++            return when (resolved) {
++                is DirectDebridPlayableResult.Success -> {
++                    val resolvedUrl = resolved.stream.playableDirectUrl.orEmpty().ifBlank { resolved.stream.url.orEmpty() }
++                    if (resolvedUrl.isNotBlank()) resolved.stream else null
++                }
++                else -> null
++            }
++        }
++        val directUrl = candidate.playableDirectUrl ?: candidate.url?.takeIf {
++            it.startsWith("http://", ignoreCase = true) || it.startsWith("https://", ignoreCase = true)
++        }
++        if (!directUrl.isNullOrBlank()) {
++            return candidate
++        }
++        return null
++    }
++
++    private suspend fun attemptStartDownloadCandidate(
++        stream: StreamItem,
++        meta: MetaDetails,
++        contentType: String,
++        targetVideoId: String,
++        seasonNumber: Int?,
++        episodeNumber: Int?,
++        episodeTitle: String?,
++        episodeThumbnail: String?,
++        displayTitle: String,
++    ): StartAttemptResult {
++        val resolvedUrl = stream.playableDirectUrl.orEmpty().ifBlank { stream.url.orEmpty() }
++        val isHlsStream = resolvedUrl.isNotBlank() && (
++            HlsPlaylistParser.isHlsUrl(resolvedUrl) ||
++            HlsPlaylistParser.isHlsStream(stream.streamType) ||
++            DownloadsRepository.probeIsHls(stream)
++        )
++
++        val enqueueResult: DownloadEnqueueResult = if (isHlsStream) {
++            val metadata = DownloadsRepository.fetchHlsMasterPlaylist(stream)
++            val master = metadata?.masterPlaylist
++            if (master != null && master.variants.isNotEmpty()) {
++                val bestVariant = master.variants.sortedWith(
++                    compareByDescending<HlsVariant> { parseResolutionPixels(it.resolution) }
++                        .thenByDescending { it.bandwidth }
++                ).first()
++
++                val audioTracks = master.audioTracks.filter { it.uri != null }
++                val italianAudio = audioTracks.firstOrNull { isItalianTrack(it) } ?: audioTracks.firstOrNull()
++                val selectedAudioUrls = listOfNotNull(italianAudio?.uri)
++
++                val displayQuality = bestVariant.resolution ?: "${(bestVariant.bandwidth / 1000)}kbps"
++                val displayAudio = italianAudio?.name.orEmpty()
++
++                val selection = HlsDownloadSelection(
++                    variantUrl = bestVariant.url,
++                    audioUrls = selectedAudioUrls,
++                    subtitleUrls = emptyList(),
++                    displayQuality = displayQuality,
++                    displayAudio = displayAudio,
++                    displaySubtitle = "",
++                )
++
++                DownloadsRepository.enqueueFromHlsSelection(
++                    contentType = contentType,
++                    videoId = targetVideoId,
++                    parentMetaId = meta.id,
++                    parentMetaType = meta.type,
++                    title = meta.name,
++                    logo = meta.logo,
++                    poster = meta.poster,
++                    background = meta.background,
++                    seasonNumber = seasonNumber,
++                    episodeNumber = episodeNumber,
++                    episodeTitle = episodeTitle,
++                    episodeThumbnail = episodeThumbnail,
++                    stream = stream,
++                    selection = selection,
++                )
++            } else {
++                DownloadsRepository.enqueueFromStream(
++                    contentType = contentType,
++                    videoId = targetVideoId,
++                    parentMetaId = meta.id,
++                    parentMetaType = meta.type,
++                    title = meta.name,
++                    logo = meta.logo,
++                    poster = meta.poster,
++                    background = meta.background,
++                    seasonNumber = seasonNumber,
++                    episodeNumber = episodeNumber,
++                    episodeTitle = episodeTitle,
++                    episodeThumbnail = episodeThumbnail,
++                    stream = stream,
++                )
++            }
++        } else {
++            DownloadsRepository.enqueueFromStream(
++                contentType = contentType,
++                videoId = targetVideoId,
++                parentMetaId = meta.id,
++                parentMetaType = meta.type,
++                title = meta.name,
++                logo = meta.logo,
++                poster = meta.poster,
++                background = meta.background,
++                seasonNumber = seasonNumber,
++                episodeNumber = episodeNumber,
++                episodeTitle = episodeTitle,
++                episodeThumbnail = episodeThumbnail,
++                stream = stream,
++            )
++        }
++
++        if (enqueueResult != DownloadEnqueueResult.Started && enqueueResult != DownloadEnqueueResult.Replaced) {
++            return StartAttemptResult.Failed(enqueueResult.toastMessage())
++        }
++
++        val logicalKey = buildLogicalKey(meta.id, seasonNumber, episodeNumber)
++        DownloadsRepository.ensureLoaded()
++        val enqueuedItem = DownloadsRepository.uiState.value.items.firstOrNull { it.logicalContentKey == logicalKey }
++            ?: return StartAttemptResult.Failed("Download non registrato")
++
++        val downloadId = enqueuedItem.id
++        log.d { "Monitoraggio avvio download ($downloadId) per: $displayTitle..." }
++
++        // Finestra di monitoraggio iniziale ("fallisce in partenza"): fino a 6 secondi
++        val monitorStartMs = DownloadsClock.nowEpochMs()
++        val monitorTimeoutMs = 6_000L
++        while (DownloadsClock.nowEpochMs() - monitorStartMs < monitorTimeoutMs) {
++            delay(250L)
++            DownloadsRepository.ensureLoaded()
++            val currentItem = DownloadsRepository.uiState.value.items.firstOrNull { it.id == downloadId }
++            if (currentItem == null) {
++                return StartAttemptResult.Failed("Download annullato o rimosso")
++            }
++            if (currentItem.status == DownloadStatus.Failed) {
++                log.w { "Download fallito in partenza: ${currentItem.errorMessage}. Pulizia e fallback..." }
++                DownloadsRepository.cancelDownload(downloadId)
++                return StartAttemptResult.Failed(currentItem.errorMessage ?: "Download fallito in partenza")
++            }
++            if (currentItem.status == DownloadStatus.Completed) {
++                return StartAttemptResult.Success(currentItem)
++            }
++            if (currentItem.downloadedBytes > 0L) {
++                // Byte ricevuti con successo! Breve conferma di stabilità (500ms)
++                delay(500L)
++                DownloadsRepository.ensureLoaded()
++                val verifyItem = DownloadsRepository.uiState.value.items.firstOrNull { it.id == downloadId }
++                if (verifyItem?.status == DownloadStatus.Failed) {
++                    DownloadsRepository.cancelDownload(downloadId)
++                    return StartAttemptResult.Failed(verifyItem.errorMessage ?: "Download fallito in partenza")
++                }
++                val safeItem: DownloadItem = verifyItem ?: currentItem
++                return StartAttemptResult.Success(safeItem)
++            }
++        }
++
++        DownloadsRepository.ensureLoaded()
++        val finalItem = DownloadsRepository.uiState.value.items.firstOrNull { it.id == downloadId }
++        return if (finalItem != null) {
++            if (finalItem.status == DownloadStatus.Failed) {
++                DownloadsRepository.cancelDownload(downloadId)
++                StartAttemptResult.Failed(finalItem.errorMessage ?: "Download fallito in partenza")
++            } else {
++                StartAttemptResult.Success(finalItem)
++            }
++        } else {
++            StartAttemptResult.Success(enqueuedItem)
++        }
++    }
++
++    fun isItemDownloaded(
++        parentMetaId: String,
++        seasonNumber: Int? = null,
++        episodeNumber: Int? = null,
++        videoId: String? = null,
++    ): Boolean {
++        DownloadsRepository.ensureLoaded()
++        return DownloadsRepository.findPlayableDownload(
++            parentMetaId = parentMetaId,
++            seasonNumber = seasonNumber,
++            episodeNumber = episodeNumber,
++            videoId = videoId,
++        ) != null
++    }
++
++    fun isItemDownloading(
++        parentMetaId: String,
++        seasonNumber: Int? = null,
++        episodeNumber: Int? = null,
++    ): Boolean {
++        val logicalKey = buildLogicalKey(parentMetaId, seasonNumber, episodeNumber)
++        if (logicalKey in _activeSearches.value) return true
++        DownloadsRepository.ensureLoaded()
++        val items = DownloadsRepository.uiState.value.items
++        return items.any {
++            it.logicalContentKey == logicalKey && (
++                it.status == DownloadStatus.Downloading ||
++                it.status == DownloadStatus.Processing
++            )
++        }
++    }
++
++    fun startAutoDownload(
++        meta: MetaDetails,
++        episode: MetaVideo? = null,
++    ) {
++        val isSeries = (meta.type == "series" || meta.videos.isNotEmpty()) && episode != null
++        val contentType = if (isSeries) "series" else meta.type
++        val seasonNumber = if (isSeries) episode?.season else null
++        val episodeNumber = if (isSeries) episode?.episode else null
++        val episodeTitle = if (isSeries) episode?.title else null
++        val episodeThumbnail = if (isSeries) episode?.thumbnail else null
++        val targetVideoId = if (isSeries) {
++            episode?.id?.takeIf { it.isNotBlank() } ?: buildPlaybackVideoId(
++                parentMetaId = meta.id,
++                seasonNumber = seasonNumber,
++                episodeNumber = episodeNumber,
++                fallbackVideoId = episode?.id,
++            )
++        } else {
++            meta.id
++        }
++        val displayTitle = if (isSeries && episodeNumber != null) {
++            val season = seasonNumber ?: 1
++            "${meta.name} S${season}E${episodeNumber}"
++        } else {
++            meta.name
++        }
++        val contentKey = buildLogicalKey(meta.id, seasonNumber, episodeNumber)
++
++        if (contentKey in _activeSearches.value) {
++            NuvioToastController.show("Ricerca stream per il download già in corso...")
++            return
++        }
++
++        DownloadsRepository.ensureLoaded()
++        DownloadsSettingsRepository.ensureLoaded()
++        if (isItemDownloaded(meta.id, seasonNumber, episodeNumber, targetVideoId)) {
++            NuvioToastController.show("Contenuto già scaricato")
++            return
++        }
++        if (isItemDownloading(meta.id, seasonNumber, episodeNumber)) {
++            NuvioToastController.show("Download già in corso")
++            return
++        }
++
++        _activeSearches.update { it + contentKey }
++        NuvioToastController.show("Ricerca del miglior stream per: $displayTitle...")
++
++        val notifId = "auto_$contentKey"
++        DownloadsLiveStatusPlatform.acquireKeepAlive(notifId, displayTitle)
++        DownloadsLiveStatusPlatform.notifyProgress(
++            id = notifId,
++            title = displayTitle,
++            message = "Ricerca dello stream in corso...",
++        )
++
++        scope.launch {
++            try {
++                PlayerStreamsRepository.loadEpisodeStreams(
++                    type = contentType,
++                    videoId = targetVideoId,
++                    season = seasonNumber,
++                    episode = episodeNumber,
++                    forceRefresh = true,
++                )
++
++                val startEpochMs = DownloadsClock.nowEpochMs()
++                val addonWaitTimeoutMs = 30_000L
++                val totalTimeoutMs = 45_000L
++
++                val sourceMode = DownloadsSettingsRepository.autoDownloadSource.value
++                val preferredAddon = DownloadsSettingsRepository.preferredAddonId.value
++                val preferredRepo = DownloadsSettingsRepository.preferredRepositoryId.value
++
++                val hasStreamAddons = try {
++                    AddonRepository.uiState.value.addons.any {
++                        it.enabled && it.manifest?.resources?.any { r -> r.name == "stream" } == true
++                    }
++                } catch (_: Throwable) {
++                    true
++                }
++
++                var downloadStarted = false
++                var attemptedCount = 0
++
++                when (sourceMode) {
++                    AutoDownloadSource.REPOSITORIES -> {
++                        // Modalità: Solo Repository / Plugin (immediato, non attende gli addon)
++                        DownloadsLiveStatusPlatform.notifyProgress(
++                            id = notifId,
++                            title = displayTitle,
++                            message = "Ricerca stream nelle repository plugin...",
++                        )
++
++                        while (DownloadsClock.nowEpochMs() - startEpochMs < totalTimeoutMs) {
++                            val state = PlayerStreamsRepository.episodeStreamsState.value
++                            val pluginGroups = state.groups.filter { isPluginGroup(it) }
++                            val pluginStreams = pluginGroups.flatMap { it.streams }
++                                .filter { isPluginStream(it) && matchesRepository(it, preferredRepo) }
++
++                            if (pluginStreams.isNotEmpty()) break
++                            if (!pluginGroups.any { it.isLoading }) break
++                            delay(250L)
++                        }
++
++                        val stateAfterPlugins = PlayerStreamsRepository.episodeStreamsState.value
++                        val pluginGroups = stateAfterPlugins.groups.filter { isPluginGroup(it) }
++                        val rawPluginStreams = pluginGroups.flatMap { it.streams }
++                            .filter { isPluginStream(it) && matchesRepository(it, preferredRepo) }
++
++                        if (rawPluginStreams.isNotEmpty()) {
++                            log.d { "Trovati ${rawPluginStreams.size} stream da plugin. Tentativo sequenziale..." }
++
++                            for (rawStream in rawPluginStreams) {
++                                val effectiveStream = resolveEffectiveStream(rawStream, seasonNumber, episodeNumber)
++                                if (effectiveStream == null) continue
++
++                                attemptedCount++
++                                val streamName = effectiveStream.addonName ?: "plugin"
++                                DownloadsLiveStatusPlatform.notifyProgress(
++                                    id = notifId,
++                                    title = displayTitle,
++                                    message = "Tentativo avvio con: $streamName...",
++                                )
++                                log.d { "Tentativo download con plugin stream #$attemptedCount (Plugin): $streamName - ${effectiveStream.streamLabel}" }
++
++                                val attemptResult = attemptStartDownloadCandidate(
++                                    stream = effectiveStream,
++                                    meta = meta,
++                                    contentType = contentType,
++                                    targetVideoId = targetVideoId,
++                                    seasonNumber = seasonNumber,
++                                    episodeNumber = episodeNumber,
++                                    episodeTitle = episodeTitle,
++                                    episodeThumbnail = episodeThumbnail,
++                                    displayTitle = displayTitle,
++                                )
++
++                                when (attemptResult) {
++                                    is StartAttemptResult.Success -> {
++                                        log.d { "Download plugin avviato con successo: $streamName" }
++                                        NuvioToastController.show("Download avviato: $displayTitle (Plugin)")
++                                        DownloadsLiveStatusPlatform.cancelNotification(notifId)
++                                        downloadStarted = true
++                                        break
++                                    }
++                                    is StartAttemptResult.Failed -> {
++                                        log.w { "Plugin stream $streamName fallito in partenza: ${attemptResult.reason}. Fallback al successivo..." }
++                                        NuvioToastController.show("Stream non disponibile, provo il successivo...")
++                                    }
++                                }
++                            }
++                        }
++                    }
++
++                    AutoDownloadSource.BOTH -> {
++                        // Modalità: Entrambi (Chi arriva prima - DEFAULT)
++                        // Se è specificato un addon preferito, diamo precedenza all'attesa dell'addon preferito.
++                        val hasSpecificAddonTarget = !preferredAddon.isNullOrBlank()
++
++                        DownloadsLiveStatusPlatform.notifyProgress(
++                            id = notifId,
++                            title = displayTitle,
++                            message = if (hasSpecificAddonTarget) {
++                                "Ricerca stream prioritari dall'addon selezionato..."
++                            } else {
++                                "Ricerca stream in corso (Addon e Repository)..."
++                            },
++                        )
++
++                        while (DownloadsClock.nowEpochMs() - startEpochMs < totalTimeoutMs) {
++                            val state = PlayerStreamsRepository.episodeStreamsState.value
++                            val pluginGroups = state.groups.filter { isPluginGroup(it) }
++                            val addonGroups = state.groups.filter { isAddonGroup(it) }
++
++                            val availablePluginStreams = pluginGroups.flatMap { it.streams }
++                                .filter { isPluginStream(it) && matchesRepository(it, preferredRepo) }
++
++                            val availableAddonStreams = addonGroups.flatMap { it.streams }
++                                .filter { isAddonStream(it) && matchesAddon(it, preferredAddon) }
++
++                            val isCheckingCache = availableAddonStreams.any { isCheckingTorrentStream(it) }
++                            val hasCachedTorrent = availableAddonStreams.any { isCachedTorrentStream(it) }
++
++                            if (hasSpecificAddonTarget) {
++                                // L'utente vuole uno specifico addon: attendiamo che termini il caricamento o i controlli cache
++                                val matchingAddonGroups = addonGroups.filter { matchesAddonGroup(it, preferredAddon) }
++                                val specificAddonFinished = matchingAddonGroups.isNotEmpty() && !matchingAddonGroups.any { it.isLoading } && !isCheckingCache
++                                if (hasCachedTorrent || (availableAddonStreams.isNotEmpty() && specificAddonFinished)) {
++                                    break
++                                }
++                                // Se l'addon preferito ha terminato senza risultati e i plugin sono pronti, procedi con fallback
++                                if (specificAddonFinished && availableAddonStreams.isEmpty() && availablePluginStreams.isNotEmpty()) {
++                                    break
++                                }
++                            } else {
++                                // Se sono arrivati i torrent cached o se i plugin sono già pronti (e non ci sono cache check in corso)
++                                if (hasCachedTorrent) {
++                                    break
++                                }
++                                if (availablePluginStreams.isNotEmpty() && !isCheckingCache) {
++                                    break
++                                }
++                            }
++
++                            val anythingStillLoading = state.isAnyLoading
++                            if (!anythingStillLoading && (availableAddonStreams.isNotEmpty() || availablePluginStreams.isNotEmpty())) {
++                                break
++                            }
++                            if (!anythingStillLoading && availableAddonStreams.isEmpty() && availablePluginStreams.isEmpty()) {
++                                break
++                            }
++
++                            delay(250L)
++                        }
++
++                        val finalState = PlayerStreamsRepository.episodeStreamsState.value
++                        val candidateStreams = buildList {
++                            val addonStreams = finalState.groups.filter { isAddonGroup(it) }.flatMap { it.streams }
++                                .filter { isAddonStream(it) && matchesAddon(it, preferredAddon) }
++                            val pluginStreams = finalState.groups.filter { isPluginGroup(it) }.flatMap { it.streams }
++                                .filter { isPluginStream(it) && matchesRepository(it, preferredRepo) }
++
++                            val sortedAddons = addonStreams.sortedBy { streamPriorityRank(it) }
++                            val cachedTorrents = sortedAddons.filter { streamPriorityRank(it) == 0 }
++                            val httpAddons = sortedAddons.filter { streamPriorityRank(it) == 1 }
++                            val otherAddons = sortedAddons.filter { streamPriorityRank(it) > 1 }
++
++                            if (hasSpecificAddonTarget) {
++                                // Addon preferito: torrent cached > http > other > fallback plugin
++                                addAll(cachedTorrents)
++                                addAll(httpAddons)
++                                addAll(otherAddons)
++                                addAll(pluginStreams)
++                            } else {
++                                // Chi arriva prima standard: torrent cached > plugin (se pronti) > addon http > altri
++                                addAll(cachedTorrents)
++                                addAll(pluginStreams)
++                                addAll(httpAddons)
++                                addAll(otherAddons)
++                            }
++                        }
++
++                        if (candidateStreams.isNotEmpty()) {
++                            log.d { "Trovati ${candidateStreams.size} stream candidati (Chi arriva prima). Tentativo..." }
++
++                            for (rawStream in candidateStreams) {
++                                val effectiveStream = resolveEffectiveStream(rawStream, seasonNumber, episodeNumber)
++                                if (effectiveStream == null) continue
++
++                                val priorityLabel = streamPriorityLabel(effectiveStream)
++                                attemptedCount++
++                                val streamName = effectiveStream.addonName ?: "stream"
++                                DownloadsLiveStatusPlatform.notifyProgress(
++                                    id = notifId,
++                                    title = displayTitle,
++                                    message = "Tentativo avvio con: $streamName ($priorityLabel)...",
++                                )
++                                log.d { "Tentativo download con stream #$attemptedCount ($priorityLabel): $streamName - ${effectiveStream.streamLabel}" }
++
++                                val attemptResult = attemptStartDownloadCandidate(
++                                    stream = effectiveStream,
++                                    meta = meta,
++                                    contentType = contentType,
++                                    targetVideoId = targetVideoId,
++                                    seasonNumber = seasonNumber,
++                                    episodeNumber = episodeNumber,
++                                    episodeTitle = episodeTitle,
++                                    episodeThumbnail = episodeThumbnail,
++                                    displayTitle = displayTitle,
++                                )
++
++                                when (attemptResult) {
++                                    is StartAttemptResult.Success -> {
++                                        log.d { "Download avviato con successo ($priorityLabel): $streamName" }
++                                        NuvioToastController.show("Download avviato: $displayTitle ($priorityLabel)")
++                                        DownloadsLiveStatusPlatform.cancelNotification(notifId)
++                                        downloadStarted = true
++                                        break
++                                    }
++                                    is StartAttemptResult.Failed -> {
++                                        log.w { "Stream $streamName ($priorityLabel) fallito in partenza: ${attemptResult.reason}. Fallback al successivo..." }
++                                        NuvioToastController.show("Stream non disponibile, provo il successivo...")
++                                    }
++                                }
++                            }
++                        }
++                    }
++
++                    AutoDownloadSource.ADDONS -> {
++                        // Modalità: Solo Addon (privilegia Torrent Cached > Addon HTTP - MAI fallback su plugin)
++                        DownloadsLiveStatusPlatform.notifyProgress(
++                            id = notifId,
++                            title = displayTitle,
++                            message = "Ricerca stream dagli addon (Torrent Cached / HTTP)...",
++                        )
++
++                        if (hasStreamAddons) {
++                            var cachedTorrentDetectedAtMs: Long? = null
++                            val hasSpecificAddonTarget = !preferredAddon.isNullOrBlank()
++
++                            while (DownloadsClock.nowEpochMs() - startEpochMs < addonWaitTimeoutMs) {
++                                val state = PlayerStreamsRepository.episodeStreamsState.value
++                                val addonGroups = state.groups.filter { isAddonGroup(it) }
++
++                                if (addonGroups.isEmpty() && state.isAnyLoading) {
++                                    delay(250L)
++                                    continue
++                                }
++
++                                val targetGroups = if (hasSpecificAddonTarget) {
++                                    addonGroups.filter { matchesAddonGroup(it, preferredAddon) }
++                                } else {
++                                    addonGroups
++                                }
++
++                                val currentAddonStreams = targetGroups.flatMap { it.streams }
++                                    .filter { isAddonStream(it) && matchesAddon(it, preferredAddon) }
++                                val isCheckingCache = currentAddonStreams.any { isCheckingTorrentStream(it) }
++                                val hasCachedTorrent = currentAddonStreams.any { isCachedTorrentStream(it) }
++
++                                if (isCheckingCache) {
++                                    DownloadsLiveStatusPlatform.notifyProgress(
++                                        id = notifId,
++                                        title = displayTitle,
++                                        message = "Verifica disponibilità cache RealDebrid in corso...",
++                                    )
++                                }
++
++                                if (hasCachedTorrent) {
++                                    if (cachedTorrentDetectedAtMs == null) {
++                                        cachedTorrentDetectedAtMs = DownloadsClock.nowEpochMs()
++                                    }
++                                    val elapsedSinceDetect = DownloadsClock.nowEpochMs() - cachedTorrentDetectedAtMs
++                                    if (!isCheckingCache || elapsedSinceDetect >= 2_000L) {
++                                        val totalElapsed = DownloadsClock.nowEpochMs() - startEpochMs
++                                        DownloadsLiveStatusPlatform.notifyProgress(
++                                            id = notifId,
++                                            title = displayTitle,
++                                            message = "Trovato Torrent Cached. Avvio download...",
++                                        )
++                                        log.d { "Trovato torrent cached pronto in ${totalElapsed}ms. Avvio immediato senza attendere flussi HTTP." }
++                                        break
++                                    }
++                                } else {
++                                    val targetStillLoading = if (hasSpecificAddonTarget) {
++                                        targetGroups.isEmpty() || targetGroups.any { it.isLoading } || state.isAnyLoading
++                                    } else {
++                                        addonGroups.any { it.isLoading } || state.isAnyLoading
++                                    }
++
++                                    if (targetStillLoading) {
++                                        DownloadsLiveStatusPlatform.notifyProgress(
++                                            id = notifId,
++                                            title = displayTitle,
++                                            message = "Ricerca flussi dagli addon in corso...",
++                                        )
++                                    } else if (!isCheckingCache && targetGroups.isNotEmpty() && currentAddonStreams.isNotEmpty()) {
++                                        log.d { "Addon hanno terminato la risposta e i controlli cache (${targetGroups.size} gruppi, ${currentAddonStreams.size} stream)." }
++                                        break
++                                    } else if (!isCheckingCache && !state.isAnyLoading && targetGroups.isNotEmpty()) {
++                                        log.d { "Tutti gli addon hanno terminato senza ulteriori stream." }
++                                        break
++                                    }
++                                }
++
++                                delay(250L)
++                            }
++                        }
++
++                        val stateAfterAddons = PlayerStreamsRepository.episodeStreamsState.value
++                        val addonGroups = stateAfterAddons.groups.filter { isAddonGroup(it) }
++                        val rawAddonStreams = addonGroups.flatMap { it.streams }
++                            .filter { isAddonStream(it) && matchesAddon(it, preferredAddon) }
++
++                        if (rawAddonStreams.isNotEmpty()) {
++                            val sortedAddonStreams = rawAddonStreams.sortedBy { streamPriorityRank(it) }
++                            val cachedCount = sortedAddonStreams.count { streamPriorityRank(it) == 0 }
++                            val httpCount = sortedAddonStreams.count { streamPriorityRank(it) == 1 }
++                            log.d { "Trovati ${sortedAddonStreams.size} stream da addon ($cachedCount torrent cached, $httpCount addon http)." }
++
++                            for (rawStream in sortedAddonStreams) {
++                                val effectiveStream = resolveEffectiveStream(rawStream, seasonNumber, episodeNumber)
++                                if (effectiveStream == null) continue
++
++                                val priorityLabel = streamPriorityLabel(effectiveStream)
++                                attemptedCount++
++                                val streamName = effectiveStream.addonName ?: "addon"
++                                DownloadsLiveStatusPlatform.notifyProgress(
++                                    id = notifId,
++                                    title = displayTitle,
++                                    message = "Tentativo avvio con: $streamName ($priorityLabel)...",
++                                )
++                                log.d { "Tentativo download con addon stream #$attemptedCount ($priorityLabel): $streamName - ${effectiveStream.streamLabel}" }
++
++                                val attemptResult = attemptStartDownloadCandidate(
++                                    stream = effectiveStream,
++                                    meta = meta,
++                                    contentType = contentType,
++                                    targetVideoId = targetVideoId,
++                                    seasonNumber = seasonNumber,
++                                    episodeNumber = episodeNumber,
++                                    episodeTitle = episodeTitle,
++                                    episodeThumbnail = episodeThumbnail,
++                                    displayTitle = displayTitle,
++                                )
++
++                                when (attemptResult) {
++                                    is StartAttemptResult.Success -> {
++                                        log.d { "Download avviato con successo ($priorityLabel): $streamName" }
++                                        NuvioToastController.show("Download avviato: $displayTitle ($priorityLabel)")
++                                        DownloadsLiveStatusPlatform.cancelNotification(notifId)
++                                        downloadStarted = true
++                                        break
++                                    }
++                                    is StartAttemptResult.Failed -> {
++                                        log.w { "Stream $streamName ($priorityLabel) fallito in partenza: ${attemptResult.reason}. Fallback al successivo..." }
++                                        NuvioToastController.show("Stream non disponibile, provo il successivo...")
++                                    }
++                                }
++                            }
++                        }
++                    }
++                }
++
++                // 3. Notifica esplicita se nessun download è riuscito a partire
++                if (!downloadStarted) {
++                    val failureMessage = if (attemptedCount > 0) {
++                        "Download fallito per $displayTitle: tutti gli stream disponibili sono falliti in partenza"
++                    } else {
++                        when (sourceMode) {
++                            AutoDownloadSource.ADDONS -> "Download fallito per $displayTitle: nessuno stream disponibile dagli addon"
++                            AutoDownloadSource.REPOSITORIES -> "Download fallito per $displayTitle: nessuno stream disponibile dalle repository"
++                            AutoDownloadSource.BOTH -> "Download fallito per $displayTitle: nessuno stream disponibile"
++                        }
++                    }
++                    log.e { failureMessage }
++                    NuvioToastController.show(failureMessage)
++                    DownloadsLiveStatusPlatform.notifyFailure(notifId, displayTitle, failureMessage)
++                }
++            } catch (e: Throwable) {
++                InAppLogger.error("AutoDownloader", "Errore durante l'auto download per $displayTitle: ${e.message}")
++                val errorMsg = "Errore durante l'avvio del download: ${e.message ?: "sconosciuto"}"
++                NuvioToastController.show(errorMsg)
++                DownloadsLiveStatusPlatform.notifyFailure(notifId, displayTitle, errorMsg)
++            } finally {
++                _activeSearches.update { it - contentKey }
++                DownloadsLiveStatusPlatform.releaseKeepAlive(notifId)
++            }
++        }
++    }
++}
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadFileSaver.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadFileSaver.kt
 new file mode 100644
-index 0000000..f82780c
+index 00000000..f82780cc
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadFileSaver.kt
 @@ -0,0 +1,6 @@
@@ -1594,7 +2481,7 @@ index 0000000..f82780c
 +expect fun rememberDownloadFileSaver(): (DownloadItem) -> Unit
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsHlsSelectionSheet.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsHlsSelectionSheet.kt
 new file mode 100644
-index 0000000..f178b01
+index 00000000..74e04ebc
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsHlsSelectionSheet.kt
 @@ -0,0 +1,403 @@
@@ -1965,7 +2852,7 @@ index 0000000..f178b01
 +    }
 +}
 +
-+private fun parseResolutionPixels(resolution: String?): Long {
++internal fun parseResolutionPixels(resolution: String?): Long {
 +    if (resolution.isNullOrBlank()) return 0L
 +    val parts = resolution.split('x', 'X')
 +    if (parts.size == 2) {
@@ -1976,7 +2863,7 @@ index 0000000..f178b01
 +    return 0L
 +}
 +
-+private fun isItalianTrack(track: HlsMediaTrack): Boolean {
++internal fun isItalianTrack(track: HlsMediaTrack): Boolean {
 +    val lang = track.language?.trim()?.lowercase()
 +    val name = track.name.trim().lowercase()
 +
@@ -2001,8 +2888,22 @@ index 0000000..f178b01
 +    return false
 +}
 +
+diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsLiveStatusPlatform.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsLiveStatusPlatform.kt
+index e3214228..d19bd595 100644
+--- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsLiveStatusPlatform.kt
++++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsLiveStatusPlatform.kt
+@@ -2,4 +2,9 @@ package com.nuvio.app.features.downloads
+ 
+ internal expect object DownloadsLiveStatusPlatform {
+     fun onItemsChanged(items: List<DownloadItem>)
++    fun notifyProgress(id: String, title: String, message: String)
++    fun notifyFailure(id: String, title: String, message: String)
++    fun cancelNotification(id: String)
++    fun acquireKeepAlive(id: String, title: String)
++    fun releaseKeepAlive(id: String)
+ }
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsModels.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsModels.kt
-index 48da488..2c91b1b 100644
+index 48da488c..2c91b1be 100644
 --- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsModels.kt
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsModels.kt
 @@ -2,6 +2,7 @@ package com.nuvio.app.features.downloads
@@ -2089,7 +2990,7 @@ index 48da488..2c91b1b 100644
      sortedWith(downloadSeriesEpisodeComparator)
  
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.kt
-index 077b853..3e58811 100644
+index 077b8530..3e588111 100644
 --- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.kt
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.kt
 @@ -1,9 +1,24 @@
@@ -2140,7 +3041,7 @@ index 077b853..3e58811 100644
 +    suspend fun probeIsHls(url: String, headers: Map<String, String>): Boolean
  }
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsRepository.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsRepository.kt
-index c6a95c8..dfe4b28 100644
+index c6a95c83..989a89a5 100644
 --- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsRepository.kt
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsRepository.kt
 @@ -1,6 +1,14 @@
@@ -2605,6 +3506,15 @@ index c6a95c8..dfe4b28 100644
      }
  
      private fun publish(items: List<DownloadItem>) {
+@@ -485,7 +769,7 @@ private fun sanitizeResponseHeaders(headers: Map<String, String>?): Map<String,
+         }
+         .toMap()
+ 
+-private fun buildLogicalKey(
++internal fun buildLogicalKey(
+     parentMetaId: String,
+     seasonNumber: Int?,
+     episodeNumber: Int?,
 @@ -502,6 +786,7 @@ private fun buildFileName(
      episodeTitle: String?,
      fallbackTitle: String,
@@ -2692,9 +3602,15 @@ index c6a95c8..dfe4b28 100644
 +    return "$stem.$resolvedExtension"
 +}
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsScreen.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsScreen.kt
-index 7019a10..25bd1ab 100644
+index 7019a10c..fb9f21bd 100644
 --- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsScreen.kt
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsScreen.kt
+@@ -1,4 +1,4 @@
+-package com.nuvio.app.features.downloads
++﻿package com.nuvio.app.features.downloads
+ 
+ import androidx.compose.foundation.clickable
+ import androidx.compose.foundation.layout.Arrangement
 @@ -10,14 +10,23 @@ import androidx.compose.foundation.layout.fillMaxWidth
  import androidx.compose.foundation.layout.height
  import androidx.compose.foundation.layout.padding
@@ -2719,7 +3635,7 @@ index 7019a10..25bd1ab 100644
  import androidx.compose.material3.Icon
  import androidx.compose.material3.IconButton
  import androidx.compose.material3.LinearProgressIndicator
-@@ -29,17 +38,25 @@ import androidx.compose.runtime.getValue
+@@ -29,17 +38,24 @@ import androidx.compose.runtime.getValue
  import androidx.compose.runtime.mutableStateOf
  import androidx.compose.runtime.remember
  import androidx.compose.runtime.saveable.rememberSaveable
@@ -2742,11 +3658,10 @@ index 7019a10..25bd1ab 100644
  import com.nuvio.app.core.ui.NuvioScreenHeader
 -import com.nuvio.app.core.ui.NuvioStatusModal
 +import com.nuvio.app.core.ui.PlatformBackHandler
-+import com.nuvio.app.features.settings.DownloadsSettingsScreen
  import com.nuvio.app.core.ui.NuvioToastController
  import nuvio.composeapp.generated.resources.*
  import org.jetbrains.compose.resources.stringResource
-@@ -52,13 +69,15 @@ fun DownloadsScreen(
+@@ -52,14 +68,14 @@ fun DownloadsScreen(
      onNavigateToShow: ((showId: String, title: String) -> Unit)? = null,
      onBackFromShow: (() -> Unit)? = null,
  ) {
@@ -2759,20 +3674,15 @@ index 7019a10..25bd1ab 100644
  
      var selectedShowId by rememberSaveable(initialShowId) { mutableStateOf(initialShowId) }
 -    var downloadPendingDeletionId by rememberSaveable { mutableStateOf<String?>(null) }
-+    var showSettings by rememberSaveable { mutableStateOf(false) }
-     val openDownloadsDirectoryFailedText = stringResource(Res.string.downloads_open_directory_failed)
+-    val openDownloadsDirectoryFailedText = stringResource(Res.string.downloads_open_directory_failed)
  
      val completedEpisodes = remember(uiState.items) {
-@@ -73,6 +92,20 @@ fun DownloadsScreen(
+         uiState.completedItems
+@@ -73,6 +89,15 @@ fun DownloadsScreen(
          }
      }
  
-+    if (showSettings) {
-+        DownloadsSettingsScreen(
-+            onBack = { showSettings = false },
-+        )
-+        return
-+    }
++
 +
 +    PlatformBackHandler(
 +        enabled = selectedShowId != null,
@@ -2784,31 +3694,29 @@ index 7019a10..25bd1ab 100644
      NuvioScreen {
          stickyHeader {
              NuvioScreenHeader(
-@@ -89,6 +122,15 @@ fun DownloadsScreen(
+@@ -88,20 +113,7 @@ fun DownloadsScreen(
+                         onBack()
                      }
                  },
-                 actions = {
-+                    if (selectedShowId == null) {
-+                        IconButton(onClick = { showSettings = true }) {
-+                            Icon(
-+                                imageVector = Icons.Rounded.Settings,
-+                                contentDescription = stringResource(Res.string.compose_settings_page_root),
-+                                tint = Color.White,
-+                            )
-+                        }
-+                    }
-                     IconButton(
-                         onClick = {
-                             if (!DownloadsPlatformDownloader.openDownloadsDirectory()) {
-@@ -99,6 +141,7 @@ fun DownloadsScreen(
-                         Icon(
-                             imageVector = Icons.Rounded.Folder,
-                             contentDescription = stringResource(Res.string.downloads_open_directory),
-+                            tint = Color.White,
-                         )
-                     }
-                 },
-@@ -112,40 +155,24 @@ fun DownloadsScreen(
+-                actions = {
+-                    IconButton(
+-                        onClick = {
+-                            if (!DownloadsPlatformDownloader.openDownloadsDirectory()) {
+-                                NuvioToastController.show(openDownloadsDirectoryFailedText)
+-                            }
+-                        },
+-                    ) {
+-                        Icon(
+-                            imageVector = Icons.Rounded.Folder,
+-                            contentDescription = stringResource(Res.string.downloads_open_directory),
+-                        )
+-                    }
+-                },
++                actions = {},
+             )
+         }
+ 
+@@ -112,40 +124,24 @@ fun DownloadsScreen(
                  onOpenShow = { showId, title ->
                      onNavigateToShow?.invoke(showId, title) ?: run { selectedShowId = showId }
                  },
@@ -2852,7 +3760,7 @@ index 7019a10..25bd1ab 100644
  ) {
      val activeItems = uiState.activeItems
      val completedMovies = uiState.completedItems.filterNot(DownloadItem::isEpisode)
-@@ -172,8 +199,10 @@ private fun LazyListScope.downloadsRootContent(
+@@ -172,8 +168,10 @@ private fun LazyListScope.downloadsRootContent(
                  onOpen = { onOpenDownload(item) },
                  onPause = { DownloadsRepository.pauseDownload(item.id) },
                  onResume = { DownloadsRepository.resumeDownload(item.id) },
@@ -2864,7 +3772,7 @@ index 7019a10..25bd1ab 100644
              )
          }
      }
-@@ -191,8 +220,10 @@ private fun LazyListScope.downloadsRootContent(
+@@ -191,8 +189,10 @@ private fun LazyListScope.downloadsRootContent(
                  onOpen = { onOpenDownload(item) },
                  onPause = { DownloadsRepository.pauseDownload(item.id) },
                  onResume = { DownloadsRepository.resumeDownload(item.id) },
@@ -2876,7 +3784,7 @@ index 7019a10..25bd1ab 100644
              )
          }
      }
-@@ -269,7 +300,7 @@ private fun LazyListScope.downloadsShowContent(
+@@ -269,7 +269,7 @@ private fun LazyListScope.downloadsShowContent(
      showId: String,
      episodes: List<DownloadItem>,
      onOpenDownload: (DownloadItem) -> Unit,
@@ -2885,7 +3793,7 @@ index 7019a10..25bd1ab 100644
  ) {
      val showEpisodes = episodes
          .filter { it.parentMetaId == showId }
-@@ -324,8 +355,10 @@ private fun LazyListScope.downloadsShowContent(
+@@ -324,8 +324,10 @@ private fun LazyListScope.downloadsShowContent(
                  onOpen = { onOpenDownload(item) },
                  onPause = { DownloadsRepository.pauseDownload(item.id) },
                  onResume = { DownloadsRepository.resumeDownload(item.id) },
@@ -2897,7 +3805,7 @@ index 7019a10..25bd1ab 100644
              )
          }
      }
-@@ -339,6 +372,8 @@ private fun DownloadRow(
+@@ -339,6 +341,8 @@ private fun DownloadRow(
      onResume: () -> Unit,
      onRetry: () -> Unit,
      onDelete: () -> Unit,
@@ -2906,7 +3814,7 @@ index 7019a10..25bd1ab 100644
  ) {
      val displayTitle = item.displayTitle()
      val displaySubtitle = downloadDisplaySubtitle(
-@@ -392,6 +427,16 @@ private fun DownloadRow(
+@@ -392,6 +396,16 @@ private fun DownloadRow(
                  }
  
                  Row(verticalAlignment = Alignment.CenterVertically) {
@@ -2923,7 +3831,7 @@ index 7019a10..25bd1ab 100644
                      when (item.status) {
                          DownloadStatus.Downloading -> {
                              IconButton(onClick = onPause) {
-@@ -409,6 +454,7 @@ private fun DownloadRow(
+@@ -409,6 +423,7 @@ private fun DownloadRow(
                                  )
                              }
                          }
@@ -2931,7 +3839,7 @@ index 7019a10..25bd1ab 100644
                          DownloadStatus.Failed -> {
                              IconButton(onClick = onRetry) {
                                  Icon(
-@@ -424,6 +470,18 @@ private fun DownloadRow(
+@@ -424,6 +439,18 @@ private fun DownloadRow(
                                      contentDescription = stringResource(Res.string.action_play),
                                  )
                              }
@@ -2950,7 +3858,7 @@ index 7019a10..25bd1ab 100644
                          }
                      }
                      IconButton(onClick = onDelete) {
-@@ -435,8 +493,52 @@ private fun DownloadRow(
+@@ -435,8 +462,52 @@ private fun DownloadRow(
                  }
              }
  
@@ -3005,7 +3913,7 @@ index 7019a10..25bd1ab 100644
                      LinearProgressIndicator(
                          progress = item.progressFraction,
                          modifier = Modifier.fillMaxWidth(),
-@@ -469,10 +571,10 @@ private fun downloadDisplaySubtitle(
+@@ -469,10 +540,10 @@ private fun downloadDisplaySubtitle(
          return item.displaySubtitle
      }
  
@@ -3018,7 +3926,7 @@ index 7019a10..25bd1ab 100644
      )
      return listOf(
          episodeCode,
-@@ -481,6 +583,22 @@ private fun downloadDisplaySubtitle(
+@@ -481,6 +552,22 @@ private fun downloadDisplaySubtitle(
      ).filterNotNull().joinToString(" • ")
  }
  
@@ -3041,7 +3949,7 @@ index 7019a10..25bd1ab 100644
  @Composable
  private fun SectionTitle(title: String) {
      Text(
-@@ -494,20 +612,44 @@ private fun SectionTitle(title: String) {
+@@ -494,20 +581,44 @@ private fun SectionTitle(title: String) {
  
  @Composable
  private fun statusText(item: DownloadItem): String {
@@ -3092,7 +4000,7 @@ index 7019a10..25bd1ab 100644
      }
  }
  
-@@ -524,3 +666,46 @@ private fun formatBytes(bytes: Long): String {
+@@ -524,3 +635,46 @@ private fun formatBytes(bytes: Long): String {
          else -> "$bytes ${localizedByteUnit("B")}"
      }
  }
@@ -3141,19 +4049,39 @@ index 7019a10..25bd1ab 100644
 +}
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsSettingsRepository.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsSettingsRepository.kt
 new file mode 100644
-index 0000000..3150acc
+index 00000000..1d7ff285
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsSettingsRepository.kt
-@@ -0,0 +1,28 @@
+@@ -0,0 +1,66 @@
 +package com.nuvio.app.features.downloads
 +
 +import kotlinx.coroutines.flow.MutableStateFlow
 +import kotlinx.coroutines.flow.StateFlow
 +import kotlinx.coroutines.flow.asStateFlow
 +
++enum class AutoDownloadSource(val storageKey: String) {
++    BOTH("both"),
++    ADDONS("addons"),
++    REPOSITORIES("repositories");
++
++    companion object {
++        fun fromStorageKey(key: String?): AutoDownloadSource =
++            entries.firstOrNull { it.storageKey.equals(key, ignoreCase = true) } ?: BOTH
++    }
++}
++
 +object DownloadsSettingsRepository {
 +    private val _downloadLocationUri = MutableStateFlow<String?>(null)
 +    val downloadLocationUri: StateFlow<String?> = _downloadLocationUri.asStateFlow()
++
++    private val _autoDownloadSource = MutableStateFlow(AutoDownloadSource.BOTH)
++    val autoDownloadSource: StateFlow<AutoDownloadSource> = _autoDownloadSource.asStateFlow()
++
++    private val _preferredAddonId = MutableStateFlow<String?>(null)
++    val preferredAddonId: StateFlow<String?> = _preferredAddonId.asStateFlow()
++
++    private val _preferredRepositoryId = MutableStateFlow<String?>(null)
++    val preferredRepositoryId: StateFlow<String?> = _preferredRepositoryId.asStateFlow()
 +
 +    private var hasLoaded = false
 +
@@ -3161,6 +4089,9 @@ index 0000000..3150acc
 +        if (hasLoaded) return
 +        hasLoaded = true
 +        _downloadLocationUri.value = DownloadsStorage.getDownloadLocationUri()
++        _autoDownloadSource.value = AutoDownloadSource.fromStorageKey(DownloadsStorage.getAutoDownloadSource())
++        _preferredAddonId.value = DownloadsStorage.getPreferredAddonId()
++        _preferredRepositoryId.value = DownloadsStorage.getPreferredRepositoryId()
 +    }
 +
 +    fun onProfileChanged() {
@@ -3172,21 +4103,42 @@ index 0000000..3150acc
 +        _downloadLocationUri.value = uri
 +        DownloadsStorage.setDownloadLocationUri(uri)
 +    }
++
++    fun setAutoDownloadSource(source: AutoDownloadSource) {
++        _autoDownloadSource.value = source
++        DownloadsStorage.setAutoDownloadSource(source.storageKey)
++    }
++
++    fun setPreferredAddonId(addonId: String?) {
++        _preferredAddonId.value = addonId
++        DownloadsStorage.setPreferredAddonId(addonId)
++    }
++
++    fun setPreferredRepositoryId(repositoryId: String?) {
++        _preferredRepositoryId.value = repositoryId
++        DownloadsStorage.setPreferredRepositoryId(repositoryId)
++    }
 +}
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsStorage.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsStorage.kt
-index 4721842..48dcc92 100644
+index 4721842a..64f6a07d 100644
 --- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsStorage.kt
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/DownloadsStorage.kt
-@@ -3,4 +3,6 @@ package com.nuvio.app.features.downloads
+@@ -3,4 +3,12 @@ package com.nuvio.app.features.downloads
  internal expect object DownloadsStorage {
      fun loadPayload(): String?
      fun savePayload(payload: String)
 +    fun getDownloadLocationUri(): String?
 +    fun setDownloadLocationUri(uri: String?)
++    fun getAutoDownloadSource(): String?
++    fun setAutoDownloadSource(source: String?)
++    fun getPreferredAddonId(): String?
++    fun setPreferredAddonId(addonId: String?)
++    fun getPreferredRepositoryId(): String?
++    fun setPreferredRepositoryId(repositoryId: String?)
  }
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/HlsDownloadEngine.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/HlsDownloadEngine.kt
 new file mode 100644
-index 0000000..95cea8d
+index 00000000..95cea8d8
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/HlsDownloadEngine.kt
 @@ -0,0 +1,230 @@
@@ -3422,7 +4374,7 @@ index 0000000..95cea8d
 +}
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/HlsPlaylist.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/HlsPlaylist.kt
 new file mode 100644
-index 0000000..bf9f951
+index 00000000..bf9f9516
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/downloads/HlsPlaylist.kt
 @@ -0,0 +1,480 @@
@@ -3908,7 +4860,7 @@ index 0000000..bf9f951
 +}
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/DownloadsSettingsPage.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/DownloadsSettingsPage.kt
 new file mode 100644
-index 0000000..0870034
+index 00000000..0870034a
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/DownloadsSettingsPage.kt
 @@ -0,0 +1,66 @@
@@ -3980,7 +4932,7 @@ index 0000000..0870034
 +internal expect fun formatUriForDisplay(uri: String): String
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/DownloadsSettingsScreen.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/DownloadsSettingsScreen.kt
 new file mode 100644
-index 0000000..d63659c
+index 00000000..d63659c0
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/DownloadsSettingsScreen.kt
 @@ -0,0 +1,41 @@
@@ -4027,7 +4979,7 @@ index 0000000..d63659c
 +}
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/NetworkSettingsRepository.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/NetworkSettingsRepository.kt
 new file mode 100644
-index 0000000..d4daa92
+index 00000000..d4daa924
 --- /dev/null
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/settings/NetworkSettingsRepository.kt
 @@ -0,0 +1,98 @@
@@ -4130,7 +5082,7 @@ index 0000000..d4daa92
 +
 +var globalNetworkSettingsRepository: NetworkSettingsRepository? = null
 diff --git a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsScreen.kt b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsScreen.kt
-index 3bf2690..9ddb7f9 100644
+index 3bf2690e..9ddb7f9c 100644
 --- a/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsScreen.kt
 +++ b/composeApp/src/commonMain/kotlin/com/nuvio/app/features/streams/StreamsScreen.kt
 @@ -93,7 +93,10 @@ import com.nuvio.app.core.ui.NuvioToastController
@@ -4281,7 +5233,7 @@ index 3bf2690..9ddb7f9 100644
  
 diff --git a/composeApp/src/desktopMain/kotlin/com/nuvio/app/core/logging/InAppLogger.desktop.kt b/composeApp/src/desktopMain/kotlin/com/nuvio/app/core/logging/InAppLogger.desktop.kt
 new file mode 100644
-index 0000000..aff23eb
+index 00000000..aff23ebc
 --- /dev/null
 +++ b/composeApp/src/desktopMain/kotlin/com/nuvio/app/core/logging/InAppLogger.desktop.kt
 @@ -0,0 +1,8 @@
@@ -4294,7 +5246,7 @@ index 0000000..aff23eb
 +internal actual fun currentInAppLogTimestamp(): String =
 +    SimpleDateFormat("HH:mm:ss", Locale.US).format(Date())
 diff --git a/composeApp/src/desktopMain/kotlin/com/nuvio/app/core/network/DesktopIPv4FirstDns.kt b/composeApp/src/desktopMain/kotlin/com/nuvio/app/core/network/DesktopIPv4FirstDns.kt
-index 6f635d6..3d7bbef 100644
+index 6f635d64..3d7bbefb 100644
 --- a/composeApp/src/desktopMain/kotlin/com/nuvio/app/core/network/DesktopIPv4FirstDns.kt
 +++ b/composeApp/src/desktopMain/kotlin/com/nuvio/app/core/network/DesktopIPv4FirstDns.kt
 @@ -1,10 +1,154 @@
@@ -4456,7 +5408,7 @@ index 6f635d6..3d7bbef 100644
  }
 diff --git a/composeApp/src/desktopMain/kotlin/com/nuvio/app/core/share/SharePlatform.desktop.kt b/composeApp/src/desktopMain/kotlin/com/nuvio/app/core/share/SharePlatform.desktop.kt
 new file mode 100644
-index 0000000..8204634
+index 00000000..82046343
 --- /dev/null
 +++ b/composeApp/src/desktopMain/kotlin/com/nuvio/app/core/share/SharePlatform.desktop.kt
 @@ -0,0 +1,5 @@
@@ -4467,7 +5419,7 @@ index 0000000..8204634
 +}
 diff --git a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadFileSaver.desktop.kt b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadFileSaver.desktop.kt
 new file mode 100644
-index 0000000..3d1ab5a
+index 00000000..3d1ab5a7
 --- /dev/null
 +++ b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadFileSaver.desktop.kt
 @@ -0,0 +1,6 @@
@@ -4478,18 +5430,23 @@ index 0000000..3d1ab5a
 +@Composable
 +actual fun rememberDownloadFileSaver(): (DownloadItem) -> Unit = {}
 diff --git a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsLiveStatusPlatform.desktop.kt b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsLiveStatusPlatform.desktop.kt
-index 5e0e33f..92e4807 100644
+index 5e0e33f5..6d63f5bc 100644
 --- a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsLiveStatusPlatform.desktop.kt
 +++ b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsLiveStatusPlatform.desktop.kt
-@@ -1,5 +1,5 @@
+@@ -1,5 +1,10 @@
  package com.nuvio.app.features.downloads
  
  internal actual object DownloadsLiveStatusPlatform {
 -    actual fun onItemsChanged(items: List<DownloadItem>) = Unit
 +    actual fun onItemsChanged(items: List<DownloadItem>) {}
++    actual fun notifyProgress(id: String, title: String, message: String) {}
++    actual fun notifyFailure(id: String, title: String, message: String) {}
++    actual fun cancelNotification(id: String) {}
++    actual fun acquireKeepAlive(id: String, title: String) {}
++    actual fun releaseKeepAlive(id: String) {}
  }
 diff --git a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.desktop.kt b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.desktop.kt
-index 6ad6614..290406b 100644
+index 6ad66145..290406b0 100644
 --- a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.desktop.kt
 +++ b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsPlatformDownloader.desktop.kt
 @@ -1,110 +1,235 @@
@@ -5171,10 +6128,10 @@ index 6ad6614..290406b 100644
  
  private fun resolveTotalBytes(
 diff --git a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsStorage.desktop.kt b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsStorage.desktop.kt
-index 04ac0d9..b3c0d23 100644
+index 04ac0d9e..b86c8083 100644
 --- a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsStorage.desktop.kt
 +++ b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/downloads/DownloadsStorage.desktop.kt
-@@ -1,15 +1,21 @@
+@@ -1,15 +1,42 @@
  package com.nuvio.app.features.downloads
  
  import com.nuvio.app.core.storage.DesktopStorage
@@ -5197,11 +6154,32 @@ index 04ac0d9..b3c0d23 100644
 +
 +    actual fun setDownloadLocationUri(uri: String?) {
 +        store.putString("download_location_uri", uri)
++    }
++
++    actual fun getAutoDownloadSource(): String? =
++        store.getString("auto_download_source")
++
++    actual fun setAutoDownloadSource(source: String?) {
++        store.putString("auto_download_source", source)
++    }
++
++    actual fun getPreferredAddonId(): String? =
++        store.getString("auto_download_addon_id")
++
++    actual fun setPreferredAddonId(addonId: String?) {
++        store.putString("auto_download_addon_id", addonId)
++    }
++
++    actual fun getPreferredRepositoryId(): String? =
++        store.getString("auto_download_repository_id")
++
++    actual fun setPreferredRepositoryId(repositoryId: String?) {
++        store.putString("auto_download_repository_id", repositoryId)
      }
  }
 diff --git a/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/settings/DownloadsSettingsPage.desktop.kt b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/settings/DownloadsSettingsPage.desktop.kt
 new file mode 100644
-index 0000000..88d0975
+index 00000000..88d0975b
 --- /dev/null
 +++ b/composeApp/src/desktopMain/kotlin/com/nuvio/app/features/settings/DownloadsSettingsPage.desktop.kt
 @@ -0,0 +1,37 @@
@@ -5242,44 +6220,9 @@ index 0000000..88d0975
 +            uri
 +        }
 +    }.getOrDefault(uri)
-diff --git a/composeApp/src/desktopTest/kotlin/com/nuvio/app/features/plugins/PluginRuntimeDesktopTest.kt b/composeApp/src/desktopTest/kotlin/com/nuvio/app/features/plugins/PluginRuntimeDesktopTest.kt
-index d8ff553..01dfe7e 100644
---- a/composeApp/src/desktopTest/kotlin/com/nuvio/app/features/plugins/PluginRuntimeDesktopTest.kt
-+++ b/composeApp/src/desktopTest/kotlin/com/nuvio/app/features/plugins/PluginRuntimeDesktopTest.kt
-@@ -32,4 +32,30 @@ class PluginRuntimeDesktopTest {
-         assertEquals("1080p", results.single().quality)
-         assertEquals("Desktop Test", results.single().provider)
-     }
-+
-+    @Test
-+    fun `desktop runtime executes fetch in plugin`() = runBlocking {
-+        val results = PluginRuntime.executePlugin(
-+            code = """
-+                module.exports.getStreams = async function(tmdbId, mediaType) {
-+                    const res = await fetch("https://httpbin.org/get");
-+                    const data = await res.json();
-+                    return [{
-+                        title: "Fetch stream " + (data ? "ok" : "fail"),
-+                        url: "https://example.test/stream.m3u8",
-+                        quality: "1080p",
-+                        provider: "Fetch Test"
-+                    }];
-+                };
-+            """.trimIndent(),
-+            tmdbId = "603",
-+            mediaType = "movie",
-+            season = null,
-+            episode = null,
-+            scraperId = "fetch-runtime-test",
-+        )
-+
-+        assertEquals(1, results.size)
-+        assertEquals("Fetch stream ok", results.single().title)
-+    }
- }
 diff --git a/composeApp/src/iosMain/kotlin/com/nuvio/app/core/logging/InAppLogger.ios.kt b/composeApp/src/iosMain/kotlin/com/nuvio/app/core/logging/InAppLogger.ios.kt
 new file mode 100644
-index 0000000..5a0c671
+index 00000000..5a0c6716
 --- /dev/null
 +++ b/composeApp/src/iosMain/kotlin/com/nuvio/app/core/logging/InAppLogger.ios.kt
 @@ -0,0 +1,10 @@
@@ -5295,7 +6238,7 @@ index 0000000..5a0c671
 +}
 diff --git a/composeApp/src/iosMain/kotlin/com/nuvio/app/core/share/SharePlatform.ios.kt b/composeApp/src/iosMain/kotlin/com/nuvio/app/core/share/SharePlatform.ios.kt
 new file mode 100644
-index 0000000..162c304
+index 00000000..162c3041
 --- /dev/null
 +++ b/composeApp/src/iosMain/kotlin/com/nuvio/app/core/share/SharePlatform.ios.kt
 @@ -0,0 +1,31 @@
@@ -5332,7 +6275,7 @@ index 0000000..162c304
 +}
 diff --git a/composeApp/src/iosMain/kotlin/com/nuvio/app/features/downloads/DownloadFileSaver.ios.kt b/composeApp/src/iosMain/kotlin/com/nuvio/app/features/downloads/DownloadFileSaver.ios.kt
 new file mode 100644
-index 0000000..3d1ab5a
+index 00000000..3d1ab5a7
 --- /dev/null
 +++ b/composeApp/src/iosMain/kotlin/com/nuvio/app/features/downloads/DownloadFileSaver.ios.kt
 @@ -0,0 +1,6 @@
@@ -5343,7 +6286,7 @@ index 0000000..3d1ab5a
 +@Composable
 +actual fun rememberDownloadFileSaver(): (DownloadItem) -> Unit = {}
 diff --git a/composeApp/src/iosMain/kotlin/com/nuvio/app/features/downloads/DownloadsLiveStatusPlatform.ios.kt b/composeApp/src/iosMain/kotlin/com/nuvio/app/features/downloads/DownloadsLiveStatusPlatform.ios.kt
-index 2cd1d31..5b9cd31 100644
+index 2cd1d315..bbb3de37 100644
 --- a/composeApp/src/iosMain/kotlin/com/nuvio/app/features/downloads/DownloadsLiveStatusPlatform.ios.kt
 +++ b/composeApp/src/iosMain/kotlin/com/nuvio/app/features/downloads/DownloadsLiveStatusPlatform.ios.kt
 @@ -20,6 +20,7 @@ internal actual object DownloadsLiveStatusPlatform {
@@ -5354,7 +6297,7 @@ index 2cd1d31..5b9cd31 100644
                      item.status == DownloadStatus.Paused ||
                      item.status == DownloadStatus.Failed
              }
-@@ -64,6 +65,7 @@ internal actual object DownloadsLiveStatusPlatform {
+@@ -64,10 +65,17 @@ internal actual object DownloadsLiveStatusPlatform {
  
      private fun statusPriority(status: DownloadStatus): Int = when (status) {
          DownloadStatus.Downloading -> 0
@@ -5362,8 +6305,18 @@ index 2cd1d31..5b9cd31 100644
          DownloadStatus.Paused -> 1
          DownloadStatus.Failed -> 2
          DownloadStatus.Completed -> 3
+     }
++
++    actual fun notifyProgress(id: String, title: String, message: String) {}
++    actual fun notifyFailure(id: String, title: String, message: String) {}
++    actual fun cancelNotification(id: String) {}
++    actual fun acquireKeepAlive(id: String, title: String) {}
++    actual fun releaseKeepAlive(id: String) {}
+ }
+ 
+ @Serializable
 diff --git a/composeApp/src/iosMain/kotlin/com/nuvio/app/features/downloads/DownloadsStorage.ios.kt b/composeApp/src/iosMain/kotlin/com/nuvio/app/features/downloads/DownloadsStorage.ios.kt
-index 1fe7cbf..d363f62 100644
+index 1fe7cbf6..bfdae903 100644
 --- a/composeApp/src/iosMain/kotlin/com/nuvio/app/features/downloads/DownloadsStorage.ios.kt
 +++ b/composeApp/src/iosMain/kotlin/com/nuvio/app/features/downloads/DownloadsStorage.ios.kt
 @@ -5,6 +5,7 @@ import platform.Foundation.NSUserDefaults
@@ -5374,7 +6327,7 @@ index 1fe7cbf..d363f62 100644
  
      actual fun loadPayload(): String? =
          NSUserDefaults.standardUserDefaults.stringForKey(ProfileScopedKey.of(payloadKey))
-@@ -12,4 +13,15 @@ internal actual object DownloadsStorage {
+@@ -12,4 +13,48 @@ internal actual object DownloadsStorage {
      actual fun savePayload(payload: String) {
          NSUserDefaults.standardUserDefaults.setObject(payload, forKey = ProfileScopedKey.of(payloadKey))
      }
@@ -5389,10 +6342,43 @@ index 1fe7cbf..d363f62 100644
 +            NSUserDefaults.standardUserDefaults.setObject(uri, forKey = ProfileScopedKey.of(downloadLocationUriKey))
 +        }
 +    }
++
++    actual fun getAutoDownloadSource(): String? =
++        NSUserDefaults.standardUserDefaults.stringForKey(ProfileScopedKey.of("auto_download_source"))
++
++    actual fun setAutoDownloadSource(source: String?) {
++        if (source == null) {
++            NSUserDefaults.standardUserDefaults.removeObjectForKey(ProfileScopedKey.of("auto_download_source"))
++        } else {
++            NSUserDefaults.standardUserDefaults.setObject(source, forKey = ProfileScopedKey.of("auto_download_source"))
++        }
++    }
++
++    actual fun getPreferredAddonId(): String? =
++        NSUserDefaults.standardUserDefaults.stringForKey(ProfileScopedKey.of("auto_download_addon_id"))
++
++    actual fun setPreferredAddonId(addonId: String?) {
++        if (addonId == null) {
++            NSUserDefaults.standardUserDefaults.removeObjectForKey(ProfileScopedKey.of("auto_download_addon_id"))
++        } else {
++            NSUserDefaults.standardUserDefaults.setObject(addonId, forKey = ProfileScopedKey.of("auto_download_addon_id"))
++        }
++    }
++
++    actual fun getPreferredRepositoryId(): String? =
++        NSUserDefaults.standardUserDefaults.stringForKey(ProfileScopedKey.of("auto_download_repository_id"))
++
++    actual fun setPreferredRepositoryId(repositoryId: String?) {
++        if (repositoryId == null) {
++            NSUserDefaults.standardUserDefaults.removeObjectForKey(ProfileScopedKey.of("auto_download_repository_id"))
++        } else {
++            NSUserDefaults.standardUserDefaults.setObject(repositoryId, forKey = ProfileScopedKey.of("auto_download_repository_id"))
++        }
++    }
  }
 diff --git a/composeApp/src/iosMain/kotlin/com/nuvio/app/features/settings/DownloadsSettingsPage.ios.kt b/composeApp/src/iosMain/kotlin/com/nuvio/app/features/settings/DownloadsSettingsPage.ios.kt
 new file mode 100644
-index 0000000..03d3dee
+index 00000000..03d3deea
 --- /dev/null
 +++ b/composeApp/src/iosMain/kotlin/com/nuvio/app/features/settings/DownloadsSettingsPage.ios.kt
 @@ -0,0 +1,16 @@
